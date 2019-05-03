@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func (scope *Scope) InitCSharedLib() {
+func (scope *Scope) InitRuntime() {
 	if scope.IsGlobal() == false {
 		log.Fatal("Init C Shared Lib to non-global scope")
 	}
@@ -20,7 +20,7 @@ func (scope *Scope) InitCSharedLib() {
 	printf.Sig.Variadic = true
 	scope.RegisterFunction("printf", printf)
 
-	printfs_fmt := constant.NewCharArrayFromString("%d")
+	printfs_fmt := constant.NewCharArrayFromString("Int: %d")
 	printfs_fmt_def := mod.NewGlobalDef("printfs_fmt", printfs_fmt)
 	scope.RegisterVariable("printfs_fmt", printfs_fmt_def)
 }

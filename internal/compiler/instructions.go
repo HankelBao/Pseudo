@@ -17,6 +17,8 @@ func (ast *Ast) Compile(scope *Scope) {
 			inst.Assignment.Compile(scope)
 		case inst.PrintfS != nil:
 			inst.PrintfS.Compile(scope)
+		case inst.NullLine != nil:
+			continue
 		default:
 			log.Fatal("Unknown instruction")
 		}
@@ -38,7 +40,7 @@ func (ins *InstDeclareVariable) Compile(scope *Scope) {
 	var variableInitial constant.Constant
 	switch {
 	case ins.Type.Int != nil:
-		variableInitial = constant.NewInt(types.I64, 0)
+		variableInitial = constant.NewInt(types.I32, 0)
 		break
 	case ins.Type.REAL != nil:
 		variableInitial = constant.NewFloat(types.Float, 0.0)

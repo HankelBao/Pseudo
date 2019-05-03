@@ -5,7 +5,7 @@ import (
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
-	"github.com/alecthomas/repr"
+	//"github.com/alecthomas/repr"
 	"log"
 )
 
@@ -32,7 +32,7 @@ const (
 
 func (e *Expression) Evaluate(scope *Scope) value.Value {
 	// Convert all the ExpressionToken into ExpressionIntermediate
-	expressionIntermediates := make([]ExpressionIntermediate, len(e.Tokens))
+	expressionIntermediates := make(ExpressionIntermediates, len(e.Tokens))
 	for index, token := range e.Tokens {
 		operationType := token.GetOperationSymbol()
 		// Operation
@@ -59,24 +59,84 @@ func (e *Expression) Evaluate(scope *Scope) value.Value {
 				}
 			}
 			// Variable
-			variable := scope.FindVariable(*token.Symbol)
+			variablePtr := scope.FindVariable(*token.Symbol)
+			variable := scope.Block.NewLoad(variablePtr)
 			expressionIntermediates[index] = NewValue(variable)
 		}
 	}
 
-	if len(expressionIntermediates) > 1 {
-		repr.Println(e)
-		log.Fatalln("Expression with more than one item is not supported.")
+	firstOT := expressionIntermediates[0].OperationType
+	if firstOT == Add || firstOT == Minus || firstOT == Times || firstOT == Divide {
+		zero := constant.NewInt(types.I32, 0)
+		zeroExpressionIntermediate := NewValue(zero)
+		expressionIntermediates = append([]ExpressionIntermediate{zeroExpressionIntermediate}, expressionIntermediates...)
 	}
 
-	for {
-		// TODO: Shorten Intermediates and generate LLVM IR
+	return (&expressionIntermediates).Evaluate(scope)
+}
 
-		if len(expressionIntermediates) == 1 {
-			return expressionIntermediates[0].Value
+type ExpressionIntermediates []ExpressionIntermediate 
+
+func (expressionIntermediates *ExpressionIntermediates) ValidateTwoElementOperation(index int) bool {
+	if index < 1 || index > len(*expressionIntermediates)-2 {
+		return false
+	}
+	if (*expressionIntermediates)[index-1].Value == nil {
+		return false
+	}
+	if (*expressionIntermediates)[index+1].Value == nil {
+		return false
+	}
+	return true
+}
+
+// RangedReplace 
+// startIndex and endIndex are inclusive
+func (expressionIntermediates *ExpressionIntermediates) RangedReplace(startIndex int, endIndex int, replaceExpressionIntermediate ExpressionIntermediate) {
+	(*expressionIntermediates)[startIndex] = replaceExpressionIntermediate
+	*expressionIntermediates = append((*expressionIntermediates)[:startIndex+1], (*expressionIntermediates)[endIndex+1:]...)
+}
+
+func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) value.Value {
+	// Shorten Intermediates and generate LLVM IR
+	// In the main loop, do in thing only at a time.
+	// The whole array could be modified in one branch of the loop.
+	for {
+		// Deal with function calls
+
+		// Split (...) into ExpressionIntermediates to solve
+
+		// Solve first "*" / "/"
+
+		// Solve first "+" / "-"
+		for index, expressionIntermediate := range *expressionIntermediates {
+			if expressionIntermediate.OperationType == Add {
+				if expressionIntermediates.ValidateTwoElementOperation(index) == false {
+					log.Fatal("Unable to generate IR for + Operation")
+				}
+				tmp := scope.Block.NewAdd((*expressionIntermediates)[index-1].Value, (*expressionIntermediates)[index+1].Value)
+				tmpExpressionIntermediate := NewValue(tmp)
+				expressionIntermediates.RangedReplace(index-1, index+1, tmpExpressionIntermediate)
+				goto finish
+			}
+			if expressionIntermediate.OperationType == Minus {
+				if expressionIntermediates.ValidateTwoElementOperation(index) == false {
+					log.Fatal("Unable to generate IR for - Operation")
+				}
+				tmp := scope.Block.NewSub((*expressionIntermediates)[index-1].Value, (*expressionIntermediates)[index+1].Value)
+				tmpExpressionIntermediate := NewValue(tmp)
+				expressionIntermediates.RangedReplace(index-1, index+1, tmpExpressionIntermediate)
+				goto finish
+			}
+		}
+
+finish:
+		// Exit
+		//log.Println(len(expressionIntermediates))
+		if len(*expressionIntermediates) == 1 {
+			return (*expressionIntermediates)[0].Value
 		}
 	}
-
 }
 
 type ExpressionIntermediate struct {
@@ -161,7 +221,7 @@ func (c *Constant) Eval(scope *Scope) value.Value {
 	case c.VReal != nil:
 		return constant.NewFloat(types.Float, *c.VReal)
 	case c.VInt != nil:
-		return constant.NewInt(types.I64, *c.VInt)
+		return constant.NewInt(types.I32, *c.VInt)
 	default:
 		log.Fatal("Parser: cannot parse value at", c.Pos)
 	}

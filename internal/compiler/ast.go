@@ -4,6 +4,8 @@ import (
 	"github.com/alecthomas/participle/lexer"
 )
 
+const EOLTag = `("\n"|"\r") ("\n"|"\r")*`
+
 type Ast struct {
 	Instructions []*Instruction `(@@)+`
 }
@@ -11,9 +13,10 @@ type Ast struct {
 type Instruction struct {
 	Pos             lexer.Position
 	Output          *InstOutput          ` @@`
+	PrintfS			*InstPrintfS		 `|@@`
 	DeclareVariable *InstDeclareVariable `|@@`
 	Assignment      *InstAssignment      `|@@`
-	PrintfS			*InstPrintfS		 `|@@`
+	NullLine		*string				 `|@EOL`
 }
 
 /*
@@ -24,6 +27,7 @@ type InstOutput struct {
 	Pos     lexer.Position
 	Inst    string     `"OUTPUT"`
 	Content Expression `@@`
+	EOL string `@EOL`
 }
 
 /*
@@ -36,6 +40,7 @@ type InstDeclareVariable struct {
 	Pos  lexer.Position
 	Name string       `"DECLARE" @Ident`
 	Type VariableType `":" @@`
+	EOL string `@EOL`
 }
 
 /*
@@ -48,7 +53,7 @@ type InstAssignment struct {
 	Pos   lexer.Position
 	Left  Key        `@@ "<"`
 	Right Expression `"-" @@`
-	Fini string `";"`
+	EOL string `@EOL`
 }
 
 /*
@@ -61,6 +66,7 @@ type InstPrintfS struct {
 	Pos lexer.Position
 	Title string `"PrintfS"`
 	Content Expression `@@`
+	EOL string `@EOL`
 }
 
 type VariableType struct {
