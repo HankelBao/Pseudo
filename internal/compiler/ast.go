@@ -13,10 +13,11 @@ type Ast struct {
 type Instruction struct {
 	Pos             lexer.Position
 	Output          *InstOutput          ` @@`
-	PrintfS			*InstPrintfS		 `|@@`
+	PrintfD         *InstPrintfD         `|@@`
+	PrintfF         *InstPrintfF         `|@@`
 	DeclareVariable *InstDeclareVariable `|@@`
 	Assignment      *InstAssignment      `|@@`
-	NullLine		*string				 `|@EOL`
+	NullLine        *string              `|@EOL`
 }
 
 /*
@@ -27,7 +28,7 @@ type InstOutput struct {
 	Pos     lexer.Position
 	Inst    string     `"OUTPUT"`
 	Content Expression `@@`
-	EOL string `@EOL`
+	EOL     string     `@EOL`
 }
 
 /*
@@ -40,7 +41,7 @@ type InstDeclareVariable struct {
 	Pos  lexer.Position
 	Name string       `"DECLARE" @Ident`
 	Type VariableType `":" @@`
-	EOL string `@EOL`
+	EOL  string       `@EOL`
 }
 
 /*
@@ -53,7 +54,7 @@ type InstAssignment struct {
 	Pos   lexer.Position
 	Left  Key        `@@ "<"`
 	Right Expression `"-" @@`
-	EOL string `@EOL`
+	EOL   string     `@EOL`
 }
 
 /*
@@ -62,11 +63,18 @@ Output a expression of INT as final type for debug usage.
 Example:
 	PrintfS 1
 */
-type InstPrintfS struct {
-	Pos lexer.Position
-	Title string `"PrintfS"`
+type InstPrintfD struct {
+	Pos     lexer.Position
+	Title   string     `"PrintfD"`
 	Content Expression `@@`
-	EOL string `@EOL`
+	EOL     string     `@EOL`
+}
+
+type InstPrintfF struct {
+	Pos     lexer.Position
+	Title   string     `"PrintfF"`
+	Content Expression `@@`
+	EOL     string     `@EOL`
 }
 
 type VariableType struct {

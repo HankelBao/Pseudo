@@ -1,9 +1,10 @@
 package compiler
 
 import (
-	"github.com/llir/llvm/ir/types"
-	"github.com/llir/llvm/ir/constant"
 	"log"
+
+	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/types"
 )
 
 func (ast *Ast) Compile(scope *Scope) {
@@ -15,8 +16,10 @@ func (ast *Ast) Compile(scope *Scope) {
 			inst.DeclareVariable.Compile(scope)
 		case inst.Assignment != nil:
 			inst.Assignment.Compile(scope)
-		case inst.PrintfS != nil:
-			inst.PrintfS.Compile(scope)
+		case inst.PrintfD != nil:
+			inst.PrintfD.Compile(scope)
+		case inst.PrintfF != nil:
+			inst.PrintfF.Compile(scope)
 		case inst.NullLine != nil:
 			continue
 		default:
@@ -43,7 +46,7 @@ func (ins *InstDeclareVariable) Compile(scope *Scope) {
 		variableInitial = constant.NewInt(types.I32, 0)
 		break
 	case ins.Type.REAL != nil:
-		variableInitial = constant.NewFloat(types.Float, 0.0)
+		variableInitial = constant.NewFloat(types.Double, 0.0)
 		break
 	}
 
@@ -63,15 +66,29 @@ func (ins *InstAssignment) Compile(scope *Scope) {
 	scope.Block.NewStore(expression, key)
 }
 
-func (ins *InstPrintfS) Compile(scope *Scope) {
+func (ins *InstPrintfD) Compile(scope *Scope) {
 	value := ins.Content.Evaluate(scope)
 
-	format_def := scope.FindVariable("printfs_fmt")
+	format_def := scope.FindVariable("printfd_fmt")
 	if format_def == nil {
-		log.Fatal("Cannot find printfs format")
+		log.Fatal("Cannot find printfd format")
 	}
 	format_ptr := scope.Block.NewBitCast(format_def, types.I8Ptr)
 
 	printf := scope.FindFunction("printf")
 	scope.Block.NewCall(printf, format_ptr, value)
+}
+
+func (ins *InstPrintfF) Compile(scope *Scope) {
+	value := ins.Content.Evaluate(scope)
+
+	format_def := scope.FindVariable("printff_fmt")
+	if format_def == nil {
+		log.Fatal("Cannot find printff format")
+	}
+	format_ptr := scope.Block.NewBitCast(format_def, types.I8Ptr)
+
+	printf := scope.FindFunction("printf")
+	scope.Block.NewCall(printf, format_ptr, value)
+
 }

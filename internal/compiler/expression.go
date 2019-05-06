@@ -5,6 +5,7 @@ import (
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
+
 	//"github.com/alecthomas/repr"
 	"log"
 )
@@ -75,7 +76,7 @@ func (e *Expression) Evaluate(scope *Scope) value.Value {
 	return (&expressionIntermediates).Evaluate(scope)
 }
 
-type ExpressionIntermediates []ExpressionIntermediate 
+type ExpressionIntermediates []ExpressionIntermediate
 
 func (expressionIntermediates *ExpressionIntermediates) ValidateTwoElementOperation(index int) bool {
 	if index < 1 || index > len(*expressionIntermediates)-2 {
@@ -90,7 +91,7 @@ func (expressionIntermediates *ExpressionIntermediates) ValidateTwoElementOperat
 	return true
 }
 
-// RangedReplace 
+// RangedReplace
 // startIndex and endIndex are inclusive
 func (expressionIntermediates *ExpressionIntermediates) RangedReplace(startIndex int, endIndex int, replaceExpressionIntermediate ExpressionIntermediate) {
 	(*expressionIntermediates)[startIndex] = replaceExpressionIntermediate
@@ -99,12 +100,30 @@ func (expressionIntermediates *ExpressionIntermediates) RangedReplace(startIndex
 
 func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) value.Value {
 	// Shorten Intermediates and generate LLVM IR
-	// In the main loop, do in thing only at a time.
+	// In the main loop, do one thing only at a time.
 	// The whole array could be modified in one branch of the loop.
 	for {
 		// Deal with function calls
 
 		// Split (...) into ExpressionIntermediates to solve
+		// Now all the "(" and ")" should be prioritized expressions
+		lastLeftParenthesisIndex := -1
+		for index, expressionIntermediate := range *expressionIntermediates {
+			if expressionIntermediate.OperationType == LeftParenthesis {
+				lastLeftParenthesisIndex = index
+			}
+			if expressionIntermediate.OperationType == RightParenthesis {
+				if lastLeftParenthesisIndex == -1 {
+					log.Fatal("Unmatched number of parenthesis.")
+				}
+				subExpressionIntermediates := (*expressionIntermediates)[lastLeftParenthesisIndex+1 : index]
+				log.Printf("%+v", subExpressionIntermediates)
+				result := subExpressionIntermediates.Evaluate(scope)
+				resultExpressionIntermediate := NewValue(result)
+				expressionIntermediates.RangedReplace(lastLeftParenthesisIndex, index, resultExpressionIntermediate)
+				goto finish
+			}
+		}
 
 		// Solve first "*" / "/"
 
@@ -114,8 +133,15 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 				if expressionIntermediates.ValidateTwoElementOperation(index) == false {
 					log.Fatal("Unable to generate IR for + Operation")
 				}
-				tmp := scope.Block.NewAdd((*expressionIntermediates)[index-1].Value, (*expressionIntermediates)[index+1].Value)
-				tmpExpressionIntermediate := NewValue(tmp)
+				value1 := (*expressionIntermediates)[index-1].Value
+				value2 := (*expressionIntermediates)[index+1].Value
+				var result value.Value
+				if value1.Type() == types.I32 {
+					result = scope.Block.NewAdd(value1, value2)
+				} else if value1.Type() == types.Double {
+					result = scope.Block.NewFAdd(value1, value2)
+				}
+				tmpExpressionIntermediate := NewValue(result)
 				expressionIntermediates.RangedReplace(index-1, index+1, tmpExpressionIntermediate)
 				goto finish
 			}
@@ -123,14 +149,25 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 				if expressionIntermediates.ValidateTwoElementOperation(index) == false {
 					log.Fatal("Unable to generate IR for - Operation")
 				}
-				tmp := scope.Block.NewSub((*expressionIntermediates)[index-1].Value, (*expressionIntermediates)[index+1].Value)
-				tmpExpressionIntermediate := NewValue(tmp)
+				value1 := (*expressionIntermediates)[index-1].Value
+				value2 := (*expressionIntermediates)[index+1].Value
+				var result value.Value
+				if value1.Type() == types.I32 {
+					result = scope.Block.NewSub(value1, value2)
+				} else if value1.Type() == types.Double {
+					result = scope.Block.NewFSub(value1, value2)
+				}
+				tmpExpressionIntermediate := NewValue(result)
 				expressionIntermediates.RangedReplace(index-1, index+1, tmpExpressionIntermediate)
 				goto finish
 			}
 		}
 
-finish:
+		// If nothing was done in a loop, the expression is not solvable.
+		// Panic.
+		//log.Fatal("Expression of unsolvable sequence.")
+
+	finish:
 		// Exit
 		//log.Println(len(expressionIntermediates))
 		if len(*expressionIntermediates) == 1 {
@@ -215,11 +252,11 @@ func (c *Constant) Eval(scope *Scope) value.Value {
 	switch {
 	case c.VString != nil:
 		// Static Strings should be stored globally.
-		string_constant := constant.NewCharArray([]byte(*c.VString))
-		global_def := scope.Module.NewGlobalDef("", string_constant)
-		return global_def
+		stringConstant := constant.NewCharArrayFromString(*c.VString + "\000")
+		globalDef := scope.Module.NewGlobalDef("", stringConstant)
+		return globalDef
 	case c.VReal != nil:
-		return constant.NewFloat(types.Float, *c.VReal)
+		return constant.NewFloat(types.Double, *c.VReal)
 	case c.VInt != nil:
 		return constant.NewInt(types.I32, *c.VInt)
 	default:

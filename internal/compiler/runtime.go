@@ -1,10 +1,11 @@
 package compiler
 
 import (
+	"log"
+
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
-	"log"
 )
 
 func (scope *Scope) InitRuntime() {
@@ -20,7 +21,11 @@ func (scope *Scope) InitRuntime() {
 	printf.Sig.Variadic = true
 	scope.RegisterFunction("printf", printf)
 
-	printfs_fmt := constant.NewCharArrayFromString("Int: %d")
-	printfs_fmt_def := mod.NewGlobalDef("printfs_fmt", printfs_fmt)
-	scope.RegisterVariable("printfs_fmt", printfs_fmt_def)
+	printfdFmt := constant.NewCharArrayFromString("Int: %d\000")
+	printfdFmtDef := mod.NewGlobalDef("printfd_fmt", printfdFmt)
+	scope.RegisterVariable("printfd_fmt", printfdFmtDef)
+
+	printffFmt := constant.NewCharArrayFromString("Int: %f\000")
+	printffFmtDef := mod.NewGlobalDef("printff_fmt", printffFmt)
+	scope.RegisterVariable("printff_fmt", printffFmtDef)
 }

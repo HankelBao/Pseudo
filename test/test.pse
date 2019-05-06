@@ -1,3 +1,1 @@
-DECLARE a : INT
-a <- 1
-PrintfS a+1
+PrintfD 1-1-1
