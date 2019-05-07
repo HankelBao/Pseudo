@@ -1,1 +1,6 @@
-PrintfD 1-1-1
+IF 1=2
+  THEN
+    OUTPUT "JJJ"
+ELSE
+    OUTPUT "OOO"
+ENDIF

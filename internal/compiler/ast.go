@@ -17,6 +17,7 @@ type Instruction struct {
 	PrintfF         *InstPrintfF         `|@@`
 	DeclareVariable *InstDeclareVariable `|@@`
 	Assignment      *InstAssignment      `|@@`
+	ConditionBr     *InstConditionBr     `|@@`
 	NullLine        *string              `|@EOL`
 }
 
@@ -67,6 +68,14 @@ type InstPrintfD struct {
 type InstPrintfF struct {
 	Pos     lexer.Position
 	Content Expression `"PrintfF" @@ EOL`
+}
+
+type InstConditionBr struct {
+	Pos       lexer.Position
+	Condition Expression `"IF" @@ EOL`
+	TrueBr    Ast        `"THEN" EOL @@`
+	FalseBr   *Ast       `("ELSE" @@)?`
+	END       string     `"ENDIF" EOL`
 }
 
 type VariableType struct {

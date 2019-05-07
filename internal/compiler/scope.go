@@ -15,6 +15,7 @@ type ScopeFuncMap map[string]*ir.Func
 
 type Scope struct {
 	Module *ir.Module
+	Func   *ir.Func
 	Block  *ir.Block
 
 	Variables ScopeVariableMap
@@ -35,6 +36,7 @@ type Scope struct {
 func NewGlobalScope() *Scope {
 	scope := Scope{
 		Module:      ir.NewModule(),
+		Func:        nil,
 		Block:       nil,
 		Variables:   make(ScopeVariableMap),
 		Functions:   make(ScopeFuncMap),
@@ -46,9 +48,27 @@ func NewGlobalScope() *Scope {
 	return &scope
 }
 
-func (scope *Scope) NewScope(block *ir.Block) *Scope {
+func (scope *Scope) NewFuncScope(function *ir.Func) *Scope {
 	new_scope := Scope{
 		Module:      scope.Module,
+		Func:        function,
+		Block:       function.NewBlock(""),
+		Variables:   make(ScopeVariableMap),
+		Functions:   nil,
+		Main:        false,
+		GlobalScope: scope.GlobalScope,
+		Parent:      scope,
+	}
+	return &new_scope
+}
+
+func (scope *Scope) NewScope(block *ir.Block) *Scope {
+	if scope.Func == nil {
+		log.Fatal("Cannot new a scope here!")
+	}
+	new_scope := Scope{
+		Module:      scope.Module,
+		Func:        scope.Func,
 		Block:       block,
 		Variables:   make(ScopeVariableMap),
 		Functions:   nil,

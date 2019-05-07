@@ -9,6 +9,7 @@ import (
 
 	//"github.com/alecthomas/repr"
 	"log"
+	"strconv"
 )
 
 type OperationSymbol int
@@ -104,6 +105,7 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 	// In the main loop, do one thing only at a time.
 	// The whole array could be modified in one branch of the loop.
 	for {
+		log.Print(len(*expressionIntermediates))
 		// Deal with function calls
 
 		// Split (...) into ExpressionIntermediates to solve
@@ -186,7 +188,7 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 
 		// If nothing was done in a loop, the expression is not solvable.
 		// Panic.
-		log.Fatal("Expression of unsolvable sequence.")
+		// log.Fatal("Expression of unsolvable sequence.")
 
 	finish:
 		// Exit
@@ -268,12 +270,16 @@ func (token *ExpressionToken) GetOperationSymbol() OperationSymbol {
 	return NotOperationSymbol
 }
 
+var stringConstantNameIndex = 0
+
 func (c *Constant) Eval(scope *Scope) value.Value {
 	switch {
 	case c.VString != nil:
 		// Static Strings should be stored globally.
 		stringConstant := constant.NewCharArrayFromString(*c.VString + "\000")
-		globalDef := scope.Module.NewGlobalDef("", stringConstant)
+		stringGName := "goPseConstant?$" + strconv.Itoa(stringConstantNameIndex)
+		stringConstantNameIndex++
+		globalDef := scope.Module.NewGlobalDef(stringGName, stringConstant)
 		return globalDef
 	case c.VReal != nil:
 		return constant.NewFloat(types.Double, *c.VReal)

@@ -13,12 +13,11 @@ func Compile(ast *Ast) *ir.Module {
 	main := globalScope.Module.NewFunc("main", &types.IntType{BitSize: 32})
 	globalScope.RegisterFunction("main", main)
 
-	main_block := main.NewBlock("")
-	main_scope := globalScope.NewScope(main_block)
+	main_scope := globalScope.NewFuncScope(main)
 	main_scope.Main = true
 	ast.Compile(main_scope)
 
 	zero := constant.NewInt(types.I32, 0)
-	main_block.NewRet(zero)
+	main_scope.Block.NewRet(zero)
 	return globalScope.Module
 }

@@ -20,6 +20,8 @@ func (ast *Ast) Compile(scope *Scope) {
 			inst.PrintfD.Compile(scope)
 		case inst.PrintfF != nil:
 			inst.PrintfF.Compile(scope)
+		case inst.ConditionBr != nil:
+			inst.ConditionBr.Compile(scope)
 		case inst.NullLine != nil:
 			continue
 		default:
@@ -91,4 +93,25 @@ func (ins *InstPrintfF) Compile(scope *Scope) {
 	printf := scope.FindFunction("printf")
 	scope.Block.NewCall(printf, format_ptr, value)
 
+}
+
+func (ins *InstConditionBr) Compile(scope *Scope) {
+	condVal := ins.Condition.Evaluate(scope)
+
+	trueBlock := scope.Func.NewBlock("")
+	trueBlockScope := scope.NewScope(trueBlock)
+	ins.TrueBr.Compile(trueBlockScope)
+
+	falseBlock := scope.Func.NewBlock("")
+	falseBlockScope := scope.NewScope(falseBlock)
+	if ins.FalseBr != nil {
+		ins.FalseBr.Compile(falseBlockScope)
+	}
+
+	continueBlock := scope.Func.NewBlock("")
+	trueBlock.NewBr(continueBlock)
+	falseBlock.NewBr(continueBlock)
+
+	scope.Block.NewCondBr(condVal, trueBlock, falseBlock)
+	scope.Block = continueBlock
 }
