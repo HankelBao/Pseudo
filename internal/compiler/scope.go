@@ -1,12 +1,13 @@
 package compiler
 
 import (
+	"log"
+
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/value"
-	"log"
 )
 
-// value.Value is a interface, 
+// value.Value is a interface,
 // so it should not be a ptr here.
 // (ir.Func is a struct)
 type ScopeVariableMap map[string]value.Value
@@ -19,7 +20,7 @@ type Scope struct {
 	Variables ScopeVariableMap
 	Functions ScopeFuncMap
 
-	// For Pseudocode, Anything in the root leve belongs to function main.
+	// For Pseudocode, Anything in the root level belongs to function main.
 	// So variables defined in main block are global variables,
 	// variables defined in other blocks are private variables.
 	Main bool

@@ -190,7 +190,6 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 
 	finish:
 		// Exit
-		//log.Println(len(expressionIntermediates))
 		if len(*expressionIntermediates) == 1 {
 			return (*expressionIntermediates)[0].Value
 		}

@@ -26,9 +26,7 @@ Example:
 */
 type InstOutput struct {
 	Pos     lexer.Position
-	Inst    string     `"OUTPUT"`
-	Content Expression `@@`
-	EOL     string     `@EOL`
+	Content Expression `"OUTPUT" @@ EOL`
 }
 
 /*
@@ -40,8 +38,7 @@ Example:
 type InstDeclareVariable struct {
 	Pos  lexer.Position
 	Name string       `"DECLARE" @Ident`
-	Type VariableType `":" @@`
-	EOL  string       `@EOL`
+	Type VariableType `":" @@ EOL`
 }
 
 /*
@@ -53,8 +50,7 @@ Example:
 type InstAssignment struct {
 	Pos   lexer.Position
 	Left  Key        `@@ "<"`
-	Right Expression `"-" @@`
-	EOL   string     `@EOL`
+	Right Expression `"-" @@ EOL`
 }
 
 /*
@@ -65,16 +61,12 @@ Example:
 */
 type InstPrintfD struct {
 	Pos     lexer.Position
-	Title   string     `"PrintfD"`
-	Content Expression `@@`
-	EOL     string     `@EOL`
+	Content Expression `"PrintfD" @@ EOL`
 }
 
 type InstPrintfF struct {
 	Pos     lexer.Position
-	Title   string     `"PrintfF"`
-	Content Expression `@@`
-	EOL     string     `@EOL`
+	Content Expression `"PrintfF" @@ EOL`
 }
 
 type VariableType struct {
