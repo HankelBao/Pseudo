@@ -3,6 +3,7 @@ package compiler
 import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 
@@ -159,6 +160,26 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 				}
 				tmpExpressionIntermediate := NewValue(result)
 				expressionIntermediates.RangedReplace(index-1, index+1, tmpExpressionIntermediate)
+				goto finish
+			}
+		}
+
+		// "="
+		for index, expressionIntermediate := range *expressionIntermediates {
+			if expressionIntermediate.OperationType == CmpEQ {
+				if expressionIntermediates.ValidateTwoElementOperation(index) == false {
+					log.Fatal("asdjfkl")
+				}
+				value1 := (*expressionIntermediates)[index-1].Value
+				value2 := (*expressionIntermediates)[index+1].Value
+				var result value.Value
+				if value1.Type() == types.I32 {
+					result = scope.Block.NewICmp(enum.IPredEQ, value1, value2)
+				} else if value1.Type() == types.Double {
+					//result = scope.Block
+				}
+				tmpEI := NewValue(result)
+				expressionIntermediates.RangedReplace(index-1, index+1, tmpEI)
 				goto finish
 			}
 		}
