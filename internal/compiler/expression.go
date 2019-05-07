@@ -186,7 +186,7 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 
 		// If nothing was done in a loop, the expression is not solvable.
 		// Panic.
-		//log.Fatal("Expression of unsolvable sequence.")
+		log.Fatal("Expression of unsolvable sequence.")
 
 	finish:
 		// Exit
