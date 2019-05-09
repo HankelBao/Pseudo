@@ -178,7 +178,7 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 				if value1.Type() == types.I32 {
 					result = scope.Block.NewICmp(enum.IPredEQ, value1, value2)
 				} else if value1.Type() == types.Double {
-					//result = scope.Block
+					result = scope.Block.NewFCmp(enum.FPredOEQ, value1, value2)
 				}
 				tmpEI := NewValue(result)
 				expressionIntermediates.RangedReplace(index-1, index+1, tmpEI)

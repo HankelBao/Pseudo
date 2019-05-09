@@ -9,7 +9,7 @@ declare i32 @printf(i8*, ...)
 
 define i32 @main() {
 ; <label>:0
-	%1 = icmp eq i32 1, 2
+	%1 = fcmp oeq double 0x3FF199999999999A, 0x3FF1EB851EB851EC
 	br i1 %1, label %2, label %5
 
 ; <label>:2

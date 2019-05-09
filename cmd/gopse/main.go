@@ -6,7 +6,6 @@ import (
 	"github.com/alecthomas/repr"
 	"log"
 	"os"
-	"os/exec"
 )
 
 func main() {
@@ -30,9 +29,9 @@ func main() {
 	out.Write([]byte(m.String()))
 	out.Close()
 
-	cmd_output, cmd_err := exec.Command("clang", "./tmp/test.ll", "-o", "./tmp/test.exe").Output()
-	if cmd_err != nil {
-		log.Fatal(cmd_err)
+	/*cmdOutput, cmdErr := exec.Command("clang", "./tmp/test.ll", "-o", "./tmp/test.exe").Output()
+	if cmdErr != nil {
+		log.Fatal(cmdErr)
 	}
-	log.Println(cmd_output)
+	log.Println(cmdOutput)*/
 }
