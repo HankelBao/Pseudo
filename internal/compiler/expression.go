@@ -93,6 +93,17 @@ func (expressionIntermediates *ExpressionIntermediates) ValidateTwoElementOperat
 	return true
 }
 
+func (expressionIntermediates *ExpressionIntermediates) TwoElemOperation(index int, opFunc func(value.Value, value.Value) value.Value) {
+	if expressionIntermediates.ValidateTwoElementOperation(index) == false {
+		log.Fatal("Unable to generate IR for Two Element Operation")
+	}
+	value1 := (*expressionIntermediates)[index-1].Value
+	value2 := (*expressionIntermediates)[index+1].Value
+	result := opFunc(value1, value2)
+	tmpExpressionIntermediate := NewValue(result)
+	expressionIntermediates.RangedReplace(index-1, index+1, tmpExpressionIntermediate)
+}
+
 // RangedReplace
 // startIndex and endIndex are inclusive
 func (expressionIntermediates *ExpressionIntermediates) RangedReplace(startIndex int, endIndex int, replaceExpressionIntermediate ExpressionIntermediate) {
@@ -133,35 +144,25 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 		// Solve first "+" / "-"
 		for index, expressionIntermediate := range *expressionIntermediates {
 			if expressionIntermediate.OperationType == Add {
-				if expressionIntermediates.ValidateTwoElementOperation(index) == false {
-					log.Fatal("Unable to generate IR for + Operation")
-				}
-				value1 := (*expressionIntermediates)[index-1].Value
-				value2 := (*expressionIntermediates)[index+1].Value
-				var result value.Value
-				if value1.Type() == types.I32 {
-					result = scope.Block.NewAdd(value1, value2)
-				} else if value1.Type() == types.Double {
-					result = scope.Block.NewFAdd(value1, value2)
-				}
-				tmpExpressionIntermediate := NewValue(result)
-				expressionIntermediates.RangedReplace(index-1, index+1, tmpExpressionIntermediate)
+				expressionIntermediates.TwoElemOperation(index, func(value1 value.Value, value2 value.Value) value.Value {
+					if value1.Type() == types.I32 {
+						return scope.Block.NewAdd(value1, value2)
+					} else if value1.Type() == types.Double {
+						return scope.Block.NewFAdd(value1, value2)
+					}
+					return nil
+				})
 				goto finish
 			}
 			if expressionIntermediate.OperationType == Minus {
-				if expressionIntermediates.ValidateTwoElementOperation(index) == false {
-					log.Fatal("Unable to generate IR for - Operation")
-				}
-				value1 := (*expressionIntermediates)[index-1].Value
-				value2 := (*expressionIntermediates)[index+1].Value
-				var result value.Value
-				if value1.Type() == types.I32 {
-					result = scope.Block.NewSub(value1, value2)
-				} else if value1.Type() == types.Double {
-					result = scope.Block.NewFSub(value1, value2)
-				}
-				tmpExpressionIntermediate := NewValue(result)
-				expressionIntermediates.RangedReplace(index-1, index+1, tmpExpressionIntermediate)
+				expressionIntermediates.TwoElemOperation(index, func(value1 value.Value, value2 value.Value) value.Value {
+					if value1.Type() == types.I32 {
+						return scope.Block.NewSub(value1, value2)
+					} else if value1.Type() == types.Double {
+						return scope.Block.NewFSub(value1, value2)
+					}
+					return nil
+				})
 				goto finish
 			}
 		}
@@ -169,19 +170,14 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 		// "="
 		for index, expressionIntermediate := range *expressionIntermediates {
 			if expressionIntermediate.OperationType == CmpEQ {
-				if expressionIntermediates.ValidateTwoElementOperation(index) == false {
-					log.Fatal("asdjfkl")
-				}
-				value1 := (*expressionIntermediates)[index-1].Value
-				value2 := (*expressionIntermediates)[index+1].Value
-				var result value.Value
-				if value1.Type() == types.I32 {
-					result = scope.Block.NewICmp(enum.IPredEQ, value1, value2)
-				} else if value1.Type() == types.Double {
-					result = scope.Block.NewFCmp(enum.FPredOEQ, value1, value2)
-				}
-				tmpEI := NewValue(result)
-				expressionIntermediates.RangedReplace(index-1, index+1, tmpEI)
+				expressionIntermediates.TwoElemOperation(index, func(value1 value.Value, value2 value.Value) value.Value {
+					if value1.Type() == types.I32 {
+						return scope.Block.NewICmp(enum.IPredEQ, value1, value2)
+					} else if value1.Type() == types.Double {
+						return scope.Block.NewFCmp(enum.FPredOEQ, value1, value2)
+					}
+					return nil
+				})
 				goto finish
 			}
 		}
