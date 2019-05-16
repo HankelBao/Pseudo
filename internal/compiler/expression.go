@@ -22,7 +22,7 @@ const (
 	Divide
 	CmpEQ
 	CmpNE
-	CmpGR
+	CmpGT
 	CmpGE
 	CmpLT
 	CmpLE
@@ -116,7 +116,10 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 	// In the main loop, do one thing only at a time.
 	// The whole array could be modified in one branch of the loop.
 	for {
-		log.Print(len(*expressionIntermediates))
+		if len(*expressionIntermediates) == 1 {
+			return (*expressionIntermediates)[0].Value
+		}
+
 		// Deal with function calls
 
 		// Split (...) into ExpressionIntermediates to solve
@@ -135,7 +138,7 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 				result := subExpressionIntermediates.Evaluate(scope)
 				resultExpressionIntermediate := NewValue(result)
 				expressionIntermediates.RangedReplace(lastLeftParenthesisIndex, index, resultExpressionIntermediate)
-				goto finish
+				goto end
 			}
 		}
 
@@ -152,7 +155,7 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 					}
 					return nil
 				})
-				goto finish
+				goto end
 			}
 			if expressionIntermediate.OperationType == Minus {
 				expressionIntermediates.TwoElemOperation(index, func(value1 value.Value, value2 value.Value) value.Value {
@@ -163,7 +166,7 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 					}
 					return nil
 				})
-				goto finish
+				goto end
 			}
 		}
 
@@ -178,19 +181,69 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 					}
 					return nil
 				})
-				goto finish
+				goto end
+			}
+			if expressionIntermediate.OperationType == CmpNE {
+				expressionIntermediates.TwoElemOperation(index, func(value1 value.Value, value2 value.Value) value.Value {
+					if value1.Type() == types.I32 {
+						return scope.Block.NewICmp(enum.IPredNE, value1, value2)
+					} else if value1.Type() == types.Double {
+						return scope.Block.NewFCmp(enum.FPredONE, value1, value2)
+					}
+					return nil
+				})
+				goto end
+			}
+			if expressionIntermediate.OperationType == CmpLT {
+				expressionIntermediates.TwoElemOperation(index, func(value1 value.Value, value2 value.Value) value.Value {
+					if value1.Type() == types.I32 {
+						return scope.Block.NewICmp(enum.IPredSLT, value1, value2)
+					} else if value1.Type() == types.Double {
+						return scope.Block.NewFCmp(enum.FPredOLT, value1, value2)
+					}
+					return nil
+				})
+				goto end
+			}
+			if expressionIntermediate.OperationType == CmpLE {
+				expressionIntermediates.TwoElemOperation(index, func(value1 value.Value, value2 value.Value) value.Value {
+					if value1.Type() == types.I32 {
+						return scope.Block.NewICmp(enum.IPredSLE, value1, value2)
+					} else if value1.Type() == types.Double {
+						return scope.Block.NewFCmp(enum.FPredOLE, value1, value2)
+					}
+					return nil
+				})
+				goto end
+			}
+			if expressionIntermediate.OperationType == CmpGT {
+				expressionIntermediates.TwoElemOperation(index, func(value1 value.Value, value2 value.Value) value.Value {
+					if value1.Type() == types.I32 {
+						return scope.Block.NewICmp(enum.IPredSGT, value1, value2)
+					} else if value1.Type() == types.Double {
+						return scope.Block.NewFCmp(enum.FPredOGT, value1, value2)
+					}
+					return nil
+				})
+				goto end
+			}
+			if expressionIntermediate.OperationType == CmpGE {
+				expressionIntermediates.TwoElemOperation(index, func(value1 value.Value, value2 value.Value) value.Value {
+					if value1.Type() == types.I32 {
+						return scope.Block.NewICmp(enum.IPredSGE, value1, value2)
+					} else if value1.Type() == types.Double {
+						return scope.Block.NewFCmp(enum.FPredOGE, value1, value2)
+					}
+					return nil
+				})
+				goto end
 			}
 		}
 
 		// If nothing was done in a loop, the expression is not solvable.
 		// Panic.
 		// log.Fatal("Expression of unsolvable sequence.")
-
-	finish:
-		// Exit
-		if len(*expressionIntermediates) == 1 {
-			return (*expressionIntermediates)[0].Value
-		}
+	end:
 	}
 }
 
@@ -234,34 +287,46 @@ func NewFunc(function *ir.Func) ExpressionIntermediate {
 
 func (token *ExpressionToken) GetOperationSymbol() OperationSymbol {
 	switch {
-	case token.Add != nil:
-		return Add
-	case token.Minus != nil:
-		return Minus
-	case token.Times != nil:
-		return Times
-	case token.Divide != nil:
-		return Divide
-	case token.CmpEQ != nil:
-		return CmpEQ
-	case token.CmpNE != nil:
-		return CmpNE
-	case token.CmpGR != nil:
-		return CmpGR
-	case token.CmpGE != nil:
-		return CmpGE
-	case token.CmpLT != nil:
-		return CmpLT
-	case token.CmpLE != nil:
-		return CmpLE
-	case token.LeftParenthesis != nil:
-		return LeftParenthesis
-	case token.RightParenthesis != nil:
-		return RightParenthesis
-	case token.LeftBracket != nil:
-		return LeftBracket
-	case token.RightBracket != nil:
-		return RightBracket
+	case token.BasicOp != nil:
+		switch *(token.BasicOp) {
+		case "+":
+			return Add
+		case "-":
+			return Minus
+		case "*":
+			return Times
+		case "/":
+			return Divide
+		}
+	case token.CmpOp != nil:
+		switch *(token.CmpOp) {
+		case "=":
+			return CmpEQ
+		case "!=":
+			return CmpNE
+		case ">":
+			return CmpGT
+		case ">=":
+			return CmpGE
+		case "<":
+			return CmpLT
+		case "<=":
+			return CmpLE
+		}
+	case token.Parenthesis != nil:
+		switch *(token.Parenthesis) {
+		case "(":
+			return LeftParenthesis
+		case ")":
+			return RightParenthesis
+		}
+	case token.Bracket != nil:
+		switch *(token.Bracket) {
+		case "[":
+			return LeftBracket
+		case "]":
+			return RightBracket
+		}
 	}
 	return NotOperationSymbol
 }

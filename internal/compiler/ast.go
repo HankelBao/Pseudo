@@ -4,8 +4,6 @@ import (
 	"github.com/alecthomas/participle/lexer"
 )
 
-const EOLTag = `("\n"|"\r") ("\n"|"\r")*`
-
 type Ast struct {
 	Instructions []*Instruction `(@@)+`
 }
@@ -111,27 +109,17 @@ type Expression struct {
 // (...) could represent prioritized expression or function params
 // [...] could only represent index (expression)
 type ExpressionToken struct {
-	Pos    lexer.Position
-	Add    *string `  @"+"`
-	Minus  *string `| @"-"`
-	Times  *string `| @"*"`
-	Divide *string `| @"/"`
+	Pos lexer.Position
 
-	CmpEQ *string `| @"="`
-	CmpNE *string `| @"!="`
-	CmpGR *string `| @">"`
-	CmpGE *string `| @">="`
-	CmpLT *string `| @"<"`
-	CmpLE *string `| @"<="`
+	BasicOp     *string `  @("+" | "-" | "*" | "/")`
+	CmpOp       *string `| @("=" | "<" "=" | ">" "=" | "<" | ">" | "!" "=")`
+	Parenthesis *string `| @("(" | ")")`
+	Bracket     *string `| @("[" | "]")`
 
 	Constant *Constant `| @@`
 	Symbol   *string   `| @Ident`
 
-	LeftParenthesis  *string `| @"("`
-	RightParenthesis *string `| @")"`
-	LeftBracket      *string `| @"["`
-	RightBracket     *string `| @"]"`
-	ParamDivier      *string `| @","`
+	ParamDivier *string `| @","`
 }
 
 type Constant struct {

@@ -26,7 +26,7 @@ func Parse(f io.Reader) *Ast{
 	parser := participle.MustBuild(&Ast{},
 		participle.Lexer(pseLexer),
 		participle.Unquote("String"),
-		participle.UseLookahead(2),
+		participle.UseLookahead(1),
 		participle.Elide("Whitespace"),
 	)
 	ast := &Ast{}
