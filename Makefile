@@ -1,9 +1,18 @@
-linux:
-	@go run ./cmd/gopse/ ./test/test.pse
-	@clang ./tmp/test.ll -o ./tmp/test
-	@./tmp/test
+ifeq ($(OS),Windows_NT)
+    uname_S := Windows
+else
+    uname_S := $(shell uname -s)
+endif
 
-windows:
+default:
+ifeq ($(uname_S), Windows)
 	@go run ./cmd/gopse/ ./test/test.pse
 	@clang ./tmp/test.ll -o ./tmp/test.exe
 	@./tmp/test.exe
+endif
+
+ifeq ($(uname_S), Linux)
+	@go run ./cmd/gopse/ ./test/test.pse
+	@clang ./tmp/test.ll -o ./tmp/test
+	@./tmp/test
+endif
