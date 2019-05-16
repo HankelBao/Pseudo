@@ -170,7 +170,7 @@ func (expressionIntermediates *ExpressionIntermediates) Evaluate(scope *Scope) v
 			}
 		}
 
-		// "="
+		// CmpOp
 		for index, expressionIntermediate := range *expressionIntermediates {
 			if expressionIntermediate.OperationType == CmpEQ {
 				expressionIntermediates.TwoElemOperation(index, func(value1 value.Value, value2 value.Value) value.Value {

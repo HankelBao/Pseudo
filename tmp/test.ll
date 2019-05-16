@@ -9,19 +9,20 @@ declare i32 @printf(i8*, ...)
 
 define i32 @main() {
 ; <label>:0
-	%1 = fcmp one double 0x3FF1EB851EB851EC, 0x3FF1EB851EB851EC
-	br i1 %1, label %2, label %5
+	%1 = fadd double 0x3FF1C28F5C28F5C3, 0x3F847AE147AE147B
+	%2 = fcmp one double 0x3FF1EB851EB851EC, %1
+	br i1 %2, label %3, label %6
 
-; <label>:2
-	%3 = bitcast [4 x i8]* @"goPseConstant?$0" to i8*
-	%4 = call i32 @puts(i8* %3)
-	br label %8
+; <label>:3
+	%4 = bitcast [4 x i8]* @"goPseConstant?$0" to i8*
+	%5 = call i32 @puts(i8* %4)
+	br label %9
 
-; <label>:5
-	%6 = bitcast [4 x i8]* @"goPseConstant?$1" to i8*
-	%7 = call i32 @puts(i8* %6)
-	br label %8
+; <label>:6
+	%7 = bitcast [4 x i8]* @"goPseConstant?$1" to i8*
+	%8 = call i32 @puts(i8* %7)
+	br label %9
 
-; <label>:8
+; <label>:9
 	ret i32 0
 }
