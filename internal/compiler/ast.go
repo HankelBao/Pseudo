@@ -112,7 +112,7 @@ type ExpressionToken struct {
 	Pos lexer.Position
 
 	BasicOp     *string `  @("+" | "-" | "*" | "/")`
-	CmpOp       *string `| @("=" | "<" "=" | ">" "=" | "<" | ">" | "!" "=")`
+	CmpOp       *string `| @("<" ">" | "=" | "<" "=" | ">" "=" | "<" | ">")`
 	Parenthesis *string `| @("(" | ")")`
 	Bracket     *string `| @("[" | "]")`
 

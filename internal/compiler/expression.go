@@ -302,7 +302,7 @@ func (token *ExpressionToken) GetOperationSymbol() OperationSymbol {
 		switch *(token.CmpOp) {
 		case "=":
 			return CmpEQ
-		case "!=":
+		case "<>":
 			return CmpNE
 		case ">":
 			return CmpGT
