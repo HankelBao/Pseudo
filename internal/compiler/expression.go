@@ -338,7 +338,7 @@ func (c *Constant) Eval(scope *Scope) value.Value {
 	case c.VString != nil:
 		// Static Strings should be stored globally.
 		stringConstant := constant.NewCharArrayFromString(*c.VString + "\000")
-		stringGName := "goPseConstant?$" + strconv.Itoa(stringConstantNameIndex)
+		stringGName := "PseudoConstant?$" + strconv.Itoa(stringConstantNameIndex)
 		stringConstantNameIndex++
 		globalDef := scope.Module.NewGlobalDef(stringGName, stringConstant)
 		return globalDef

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/HankelBao/GoPse/internal/compiler"
+	"github.com/HankelBao/Pseudo/internal/compiler"
 	"github.com/alecthomas/repr"
 	"log"
 	"os"

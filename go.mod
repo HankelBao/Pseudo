@@ -1,4 +1,4 @@
-module github.com/HankelBao/GoPse
+module github.com/HankelBao/Pseudo
 
 go 1.12
 

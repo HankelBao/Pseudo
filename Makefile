@@ -6,13 +6,13 @@ endif
 
 default:
 ifeq ($(uname_S), Windows)
-	@go run ./cmd/gopse/ ./test/test.pse
+	@go run ./cmd/pseudo/ ./test/test.pse
 	@clang ./tmp/test.ll -o ./tmp/test.exe
 	@./tmp/test.exe
 endif
 
 ifeq ($(uname_S), Linux)
-	@go run ./cmd/gopse/ ./test/test.pse
+	@go run ./cmd/pseudo/ ./test/test.pse
 	@clang ./tmp/test.ll -o ./tmp/test
 	@./tmp/test
 endif
