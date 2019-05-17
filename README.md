@@ -14,25 +14,25 @@ No releases yet...
 
 ## What has been achieved?
 
-- [*] Types
-    - [*] Int
-    - [*] Real
-    - [*] String
+- [x] Types
+    - [x] Int
+    - [x] Real
+    - [x] String
     - [ ] Array
     - [ ] Type (struct)
 - [ ] Expression
-    - [*] Add/Minus
+    - [x] Add/Minus
     - [ ] Multiple/Divide
     - [ ] (Subexpression)
     - [ ] Array Index
-    - [*] Cmp (=/<>/<=/>=/</>)
+    - [x] Cmp (=/<>/<=/>=/</>)
     - [ ] Functions
 - [ ] Instructions
-    - [*] Declare
-    - [*] Assign
-    - [*] Output
+    - [x] Declare
+    - [x] Assign
+    - [x] Output
     - [ ] Input
-    - [*] If
+    - [x] If
     - [ ] While 
     - [ ] Repeat
     - [ ] For
