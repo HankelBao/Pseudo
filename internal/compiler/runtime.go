@@ -8,6 +8,10 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
+// InitRuntime inits the runtime for pseudocode.
+// This includes:
+// - C Standard Functions
+// - Format for PrintfD and PrintfF
 func (scope *Scope) InitRuntime() {
 	if scope.IsGlobal() == false {
 		log.Fatal("Init C Shared Lib to non-global scope")

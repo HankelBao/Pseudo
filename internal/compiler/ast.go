@@ -100,7 +100,7 @@ type KeyToken struct {
 
 type Expression struct {
 	Pos    lexer.Position
-	Tokens []*ExpressionToken `@@+`
+	Tokens []ExpressionToken `@@+`
 }
 
 // In order to simplify the tokens and improve the error report,
@@ -111,15 +111,12 @@ type Expression struct {
 type ExpressionToken struct {
 	Pos lexer.Position
 
-	BasicOp     *string `  @("+" | "-" | "*" | "/")`
-	CmpOp       *string `| @("<" ">" | "=" | "<" "=" | ">" "=" | "<" | ">")`
-	Parenthesis *string `| @("(" | ")")`
-	Bracket     *string `| @("[" | "]")`
+	OperationType OperationType
+	Priority int
 
-	Constant *Constant `| @@`
-	Symbol   *string   `| @Ident`
-
-	ParamDivier *string `| @","`
+	OperationSymbol *string   `@("+" | "-" | "*" | "/" | "<" ">" | "=" | "<" "=" | ">" "=" | "<" | ">" | "(" | ")" | "[" | "]" | ",")`
+	Constant        *Constant `| @@`
+	Symbol          *string   `| @Ident`
 }
 
 type Constant struct {

@@ -8,6 +8,7 @@ import (
 	//"log"
 )
 
+// Locate tries to locate the key to a value via the scope given.
 func (key *Key) Locate(scope *Scope) value.Value {
 	variableName := key.Tokens[0].Symbol
 	variable := scope.FindVariable(*variableName)

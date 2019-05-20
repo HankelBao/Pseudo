@@ -7,6 +7,8 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
+// Compile compiles the ast
+// It splits them into different instructions.
 func (ast *Ast) Compile(scope *Scope) {
 	for _, inst := range ast.Instructions {
 		switch {

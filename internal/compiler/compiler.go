@@ -6,6 +6,7 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
+// Compile compiles the ast.
 func Compile(ast *Ast) *ir.Module {
 	globalScope := NewGlobalScope()
 	globalScope.InitRuntime()
@@ -13,11 +14,11 @@ func Compile(ast *Ast) *ir.Module {
 	main := globalScope.Module.NewFunc("main", &types.IntType{BitSize: 32})
 	globalScope.RegisterFunction("main", main)
 
-	main_scope := globalScope.NewFuncScope(main)
-	main_scope.Main = true
-	ast.Compile(main_scope)
+	mainScope := globalScope.NewFuncScope(main)
+	mainScope.Main = true
+	ast.Compile(mainScope)
 
 	zero := constant.NewInt(types.I32, 0)
-	main_scope.Block.NewRet(zero)
+	mainScope.Block.NewRet(zero)
 	return globalScope.Module
 }

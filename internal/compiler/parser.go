@@ -8,6 +8,7 @@ import (
 	"log"
 )
 
+// Parse parses the input into ast.
 func Parse(f io.Reader) *Ast{
 	pseLexer := lexer.Must(ebnf.New(`
 		Ident = (alpha | "_") { "_" | alpha | digit } .
@@ -30,9 +31,9 @@ func Parse(f io.Reader) *Ast{
 		participle.Elide("Whitespace"),
 	)
 	ast := &Ast{}
-	parse_err := parser.Parse(f, ast)
-	if parse_err != nil {
-		log.Fatal(parse_err)
+	parseErr := parser.Parse(f, ast)
+	if parseErr != nil {
+		log.Fatal(parseErr)
 	}
 	return ast
 }

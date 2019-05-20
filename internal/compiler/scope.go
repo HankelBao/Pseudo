@@ -7,12 +7,16 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-// value.Value is a interface,
+
+// ScopeVariableMap is a map to store all the variables in a scope.
+// value.Value is an interface,
 // so it should not be a ptr here.
-// (ir.Func is a struct)
 type ScopeVariableMap map[string]value.Value
+// ScopeFuncMap is a map to store all the functions in a scope.
+// ir.Func is a struct
 type ScopeFuncMap map[string]*ir.Func
 
+// Scope keep track of all the informations in a block/sub-block.
 type Scope struct {
 	Module *ir.Module
 	Func   *ir.Func
@@ -33,6 +37,8 @@ type Scope struct {
 	Parent      *Scope
 }
 
+// NewGlobalScope creates a global scope.
+// There should be only one global scope.
 func NewGlobalScope() *Scope {
 	scope := Scope{
 		Module:      ir.NewModule(),
@@ -48,8 +54,9 @@ func NewGlobalScope() *Scope {
 	return &scope
 }
 
+// NewFuncScope creates a function scope under global scope.
 func (scope *Scope) NewFuncScope(function *ir.Func) *Scope {
-	new_scope := Scope{
+	newScope := Scope{
 		Module:      scope.Module,
 		Func:        function,
 		Block:       function.NewBlock(""),
@@ -59,14 +66,15 @@ func (scope *Scope) NewFuncScope(function *ir.Func) *Scope {
 		GlobalScope: scope.GlobalScope,
 		Parent:      scope,
 	}
-	return &new_scope
+	return &newScope
 }
 
+// NewScope creates a new scope under the given scope.
 func (scope *Scope) NewScope(block *ir.Block) *Scope {
 	if scope.Func == nil {
 		log.Fatal("Cannot new a scope here!")
 	}
-	new_scope := Scope{
+	newScope := Scope{
 		Module:      scope.Module,
 		Func:        scope.Func,
 		Block:       block,
@@ -76,9 +84,10 @@ func (scope *Scope) NewScope(block *ir.Block) *Scope {
 		GlobalScope: scope.GlobalScope,
 		Parent:      scope,
 	}
-	return &new_scope
+	return &newScope
 }
 
+// RegisterVariable register a variable to the current scope for further usages.
 func (scope *Scope) RegisterVariable(name string, val value.Value) {
 	_, ok := scope.Variables[name]
 	if ok {
@@ -87,6 +96,8 @@ func (scope *Scope) RegisterVariable(name string, val value.Value) {
 	scope.Variables[name] = val
 }
 
+// FindVariable locates the variable registered.
+// If the variable is not found, nil would be returned.
 func (scope *Scope) FindVariable(name string) value.Value {
 	currentScope := scope
 	for {
@@ -101,6 +112,8 @@ func (scope *Scope) FindVariable(name string) value.Value {
 	}
 }
 
+// RegisterFunction registers a function to the current scope for further usages.
+// Functions should be registered to global scope only!
 func (scope *Scope) RegisterFunction(name string, value *ir.Func) {
 	_, ok := scope.Functions[name]
 	if ok {
@@ -109,6 +122,7 @@ func (scope *Scope) RegisterFunction(name string, value *ir.Func) {
 	scope.Functions[name] = value
 }
 
+// FindFunction locates the function in the current scope.
 func (scope *Scope) FindFunction(name string) *ir.Func {
 	// Functions only restored in globalscope.
 	currentScope := scope.GlobalScope
@@ -119,6 +133,7 @@ func (scope *Scope) FindFunction(name string) *ir.Func {
 	return nil
 }
 
+// IsGlobal checks if the current scope is the global scope.
 func (scope *Scope) IsGlobal() bool {
 	if scope == scope.GlobalScope {
 		return true
