@@ -5,13 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch",
+            "name": "Launch Package",
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "program": "${workspaceFolder}/cmd/pseudo/main.go",
-            "env": {},
-            "args": ["./test/test.pse"]
+            "program": "${workspaceFolder}//cmd//pseudo",
+            "args": ["../../test/test.pse"]
         }
     ]
 }

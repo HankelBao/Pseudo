@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/HankelBao/Pseudo/internal/compiler"
-	"github.com/alecthomas/repr"
 	"log"
 	"os"
+
+	"github.com/HankelBao/Pseudo/internal/compiler"
+	"github.com/alecthomas/repr"
 )
 
 func main() {
