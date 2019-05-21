@@ -1,4 +1,1 @@
-IF 2=1+1
-  THEN
-    OUTPUT "Hi"
-ENDIF
+PrintfD 1-1-1

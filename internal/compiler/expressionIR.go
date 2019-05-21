@@ -1,9 +1,10 @@
 package compiler
 
 import (
-	"github.com/llir/llvm/ir/value"
-	"math"
 	"log"
+	"math"
+
+	"github.com/llir/llvm/ir/value"
 )
 
 // ExpressionIR converts ExpressionToken into real asts(binary tree).
@@ -17,12 +18,12 @@ type ExpressionIR struct {
 
 // NewExpressionIR creates a new expressionIR with initial expression tokens.
 func NewExpressionIR(expressionTokens []ExpressionToken) *ExpressionIR {
-	expressionIR := ExpressionIR {
-		OperationType: NotOperationType,
+	expressionIR := ExpressionIR{
+		OperationType:    NotOperationType,
 		ExpressionTokens: expressionTokens,
-		Value: nil,
-		Left: nil,
-		Right: nil,
+		Value:            nil,
+		Left:             nil,
+		Right:            nil,
 	}
 	return &expressionIR
 }
@@ -32,11 +33,15 @@ func (expressionIR *ExpressionIR) Build(scope *Scope) {
 	// Find the operation with least priority.
 	targetPriority := math.MaxInt32
 	targetIndex := -1
-	for index, token := range expressionIR.ExpressionTokens {
+	for index := len(expressionIR.ExpressionTokens) - 1; index >= 0; index-- {
+		token := expressionIR.ExpressionTokens[index]
 		if token.OperationType == NotOperationType {
 			continue
 		}
 		if token.Priority < targetPriority {
+			if token.OperationType == LeftParenthesis || token.OperationType == RightParenthesis {
+				continue
+			}
 			targetIndex = index
 			targetPriority = token.Priority
 		}
@@ -44,26 +49,54 @@ func (expressionIR *ExpressionIR) Build(scope *Scope) {
 	log.Println(targetIndex)
 
 	// Check whether it is a leaf.
-	var toSplit bool
+	var leafNode bool
 	if targetIndex == -1 {
-		toSplit = false
+		leafNode = true
 	} else {
-		ot := expressionIR.ExpressionTokens[targetIndex].OperationType
-		if ot == LeftParenthesis || ot == RightParenthesis {
-			toSplit = false
-		} else {
-			toSplit = true
-		}
+		leafNode = false
 	}
 
-	if toSplit == true {
+	if leafNode == false {
 		expressionIR.OperationType = expressionIR.ExpressionTokens[targetIndex].OperationType
 		expressionIR.Left = NewExpressionIR(expressionIR.ExpressionTokens[:targetIndex])
 		expressionIR.Right = NewExpressionIR(expressionIR.ExpressionTokens[targetIndex+1:])
 		expressionIR.Left.Build(scope)
 		expressionIR.Right.Build(scope)
 	} else {
-		// TODO: add paranthesis support
+		// Parenthesis could be mixed in the tokens here.
+		// Parenthesis at the head would always be parenthesises for prioritizing expressions.
+		numberHeadParenToRemove := 0
+		for _, token := range expressionIR.ExpressionTokens {
+			if token.OperationType == LeftParenthesis {
+				numberHeadParenToRemove++
+			} else {
+				break
+			}
+		}
+		expressionIR.ExpressionTokens = expressionIR.ExpressionTokens[numberHeadParenToRemove:]
+
+		// Count the left parenthesis left, they are used for functions
+		numberFuncLeftParen := 0
+		for _, token := range expressionIR.ExpressionTokens {
+			if token.OperationType == LeftParenthesis {
+				numberFuncLeftParen++
+			}
+		}
+		numberTailRightParen := 0
+		for i := len(expressionIR.ExpressionTokens) - 1; i > 0; i-- {
+			if expressionIR.ExpressionTokens[i].OperationType == RightParenthesis {
+				numberTailRightParen++
+			} else {
+				break
+			}
+		}
+
+		numberTailRightParenToRemove := numberTailRightParen - numberFuncLeftParen
+		if numberTailRightParenToRemove < 0 {
+			numberTailRightParenToRemove = 0
+		}
+		expressionIR.ExpressionTokens = expressionIR.ExpressionTokens[:len(expressionIR.ExpressionTokens)-numberTailRightParenToRemove]
+
 		token := expressionIR.ExpressionTokens[0]
 		if token.Constant != nil {
 			expressionIR.Value = token.Constant.Evaluate(scope)
