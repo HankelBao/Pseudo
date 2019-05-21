@@ -1,1 +1,6 @@
-PrintfD 1-(1-1)
+DECLARE a : INT
+a <- 10/2
+IF 1+5-1/1=(1+1)*1-2+a
+  THEN
+    OUTPUT "hi"
+ENDIF

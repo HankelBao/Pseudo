@@ -152,22 +152,6 @@ type Primary struct {
 	Subexpression *Expression `| "(" @@ ")"`
 }
 
-// In order to simplify the tokens and improve the error report,
-// Expression Tokens are just lexers.
-//
-// (...) could represent prioritized expression or function params
-// [...] could only represent index (expression)
-type ExpressionToken struct {
-	Pos lexer.Position
-
-	OperationType OperationType
-	Priority      int
-
-	OperationSymbol *string   `@("+" | "-" | "*" | "/" | "<" ">" | "=" | "<" "=" | ">" "=" | "<" | ">" | "(" | ")" | "[" | "]" | ",")`
-	Constant        *Constant `| @@`
-	Symbol          *string   `| @Ident`
-}
-
 type Constant struct {
 	//Pos     lexer.Position
 	VString *string  `  @String`

@@ -33,9 +33,9 @@ func (o *OpComparison) Evaluate(scope *Scope, lhsValue value.Value) value.Value 
 	case "<>":
 		return CmpNEEval(scope, lhsValue, rhsValue)
 	case ">":
-		return CmpLTEval(scope, lhsValue, rhsValue)
+		return CmpGTEval(scope, lhsValue, rhsValue)
 	case ">=":
-		return CmpLEEval(scope, lhsValue, rhsValue)
+		return CmpGEEval(scope, lhsValue, rhsValue)
 	case "<":
 		return CmpLTEval(scope, lhsValue, rhsValue)
 	case "<=":
@@ -74,16 +74,26 @@ func (m *Multiplication) Evaluate(scope *Scope) value.Value {
 }
 
 func (o *OpMultiplication) Evaluate(scope *Scope, lhsValue value.Value) value.Value {
-	//rhsValue := o.Item.Evaluate(scope)
+	rhsValue := o.Item.Evaluate(scope)
 	switch o.Operator {
-	// Not implemented yet
+	case "*":
+		return MultipleEval(scope, lhsValue, rhsValue)
+	case "/":
+		return DivideEval(scope, lhsValue, rhsValue)
 	}
 	return nil
 }
 
 func (u *Unary) Evaluate(scope *Scope) value.Value {
-	// Not implemented yet
-	return u.Primary.Evaluate(scope)
+	switch {
+	// Not is implemented yet
+	case u.Opposite != nil:
+		return OppositeEval(scope, u.Opposite.Evaluate(scope))
+	case u.Primary != nil:
+		return u.Primary.Evaluate(scope)
+	}
+	log.Fatal("unreachable")
+	return nil
 }
 
 func (p *Primary) Evaluate(scope *Scope) value.Value {
