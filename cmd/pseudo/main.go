@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
+	"runtime"
 
 	"github.com/HankelBao/Pseudo/internal/compiler"
-	"github.com/alecthomas/repr"
 )
 
 func main() {
@@ -20,19 +21,34 @@ func main() {
 	}
 
 	ast := compiler.Parse(in)
-	repr.Println(ast)
+	// repr.Println(ast)
 
 	m := compiler.Compile(ast)
-	fmt.Println(m)
+	// fmt.Println(m)
 
 	os.MkdirAll("./tmp", os.ModePerm)
 	out, _ := os.Create("./tmp/test.ll")
 	out.Write([]byte(m.String()))
 	out.Close()
 
-	/*cmdOutput, cmdErr := exec.Command("clang", "./tmp/test.ll", "-o", "./tmp/test.exe").Output()
-	if cmdErr != nil {
-		log.Fatal(cmdErr)
+	var targetName string
+	if runtime.GOOS == "windows" {
+		targetName = "./tmp/test.exe"
+	} else if runtime.GOOS == "linux" {
+		targetName = "./tmp/test"
 	}
-	log.Println(cmdOutput)*/
+
+	clangCmdOutput, clangCmdErr := exec.Command("clang", "./tmp/test.ll", "-o", targetName).Output()
+	if clangCmdErr != nil {
+		log.Fatal(clangCmdErr)
+	}
+	if string(clangCmdOutput) != "" {
+		log.Println(string(clangCmdOutput))
+	}
+
+	execCmdOutput, execCmdErr := exec.Command(targetName).Output()
+	if execCmdErr != nil {
+		log.Fatal(execCmdErr)
+	}
+	fmt.Println(string(execCmdOutput))
 }
