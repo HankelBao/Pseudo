@@ -15,6 +15,7 @@ No releases yet...
 ## What has been achieved?
 
 - [x] Types
+    - [ ] Bool
     - [x] Int
     - [x] Real
     - [x] String
@@ -22,8 +23,8 @@ No releases yet...
     - [ ] Type (struct)
 - [ ] Expression
     - [x] Add/Minus
-    - [ ] Multiple/Divide
-    - [ ] (Subexpression)
+    - [x] Multiple/Divide
+    - [x] (Subexpression)
     - [ ] Array Index
     - [x] Cmp (=/<>/<=/>=/</>)
     - [ ] Functions
@@ -33,7 +34,7 @@ No releases yet...
     - [x] Output
     - [ ] Input
     - [x] If
-    - [ ] While 
+    - [ ] While
     - [ ] Repeat
     - [ ] For
     - [ ] Case
