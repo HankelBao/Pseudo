@@ -17,6 +17,7 @@ func (e *Expression) Evaluate(scope *Scope) value.Value {
 	return e.Comparison.Evaluate(scope)
 }
 
+// Evaluate evalutes comparison
 func (c *Comparison) Evaluate(scope *Scope) value.Value {
 	lhsValue := c.Head.Evaluate(scope)
 	for _, item := range c.Items {
@@ -25,6 +26,7 @@ func (c *Comparison) Evaluate(scope *Scope) value.Value {
 	return lhsValue
 }
 
+// Evaluate evalutes op based on lhs
 func (o *OpComparison) Evaluate(scope *Scope, lhsValue value.Value) value.Value {
 	rhsValue := o.Item.Evaluate(scope)
 	switch o.Operator {
@@ -45,6 +47,7 @@ func (o *OpComparison) Evaluate(scope *Scope, lhsValue value.Value) value.Value 
 	return nil
 }
 
+// Evaluate evalutes addition
 func (a *Addition) Evaluate(scope *Scope) value.Value {
 	lhsValue := a.Head.Evaluate(scope)
 	for _, item := range a.Items {
@@ -53,6 +56,7 @@ func (a *Addition) Evaluate(scope *Scope) value.Value {
 	return lhsValue
 }
 
+// Evaluate evalutes op based on lhs
 func (o *OpAddition) Evaluate(scope *Scope, lhsValue value.Value) value.Value {
 	rhsValue := o.Item.Evaluate(scope)
 	switch o.Operator {
@@ -65,6 +69,7 @@ func (o *OpAddition) Evaluate(scope *Scope, lhsValue value.Value) value.Value {
 	return nil
 }
 
+// Evaluate evaluates multiplication
 func (m *Multiplication) Evaluate(scope *Scope) value.Value {
 	lhsValue := m.Head.Evaluate(scope)
 	for _, item := range m.Items {
@@ -73,6 +78,7 @@ func (m *Multiplication) Evaluate(scope *Scope) value.Value {
 	return lhsValue
 }
 
+// Evaluate evalutes op based on lhs
 func (o *OpMultiplication) Evaluate(scope *Scope, lhsValue value.Value) value.Value {
 	rhsValue := o.Item.Evaluate(scope)
 	switch o.Operator {
@@ -84,6 +90,7 @@ func (o *OpMultiplication) Evaluate(scope *Scope, lhsValue value.Value) value.Va
 	return nil
 }
 
+// Evaluate evaluates unary
 func (u *Unary) Evaluate(scope *Scope) value.Value {
 	switch {
 	// Not is implemented yet
@@ -96,6 +103,7 @@ func (u *Unary) Evaluate(scope *Scope) value.Value {
 	return nil
 }
 
+// Evaluate evaluates primary
 func (p *Primary) Evaluate(scope *Scope) value.Value {
 	switch {
 	case p.Constant != nil:

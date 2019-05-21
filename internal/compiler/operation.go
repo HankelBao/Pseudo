@@ -27,6 +27,7 @@ func MinusEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value
 	return nil
 }
 
+// MultipleEval generates IR for multiple
 func MultipleEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value {
 	if value1.Type() == types.I32 {
 		return scope.Block.NewMul(value1, value2)
@@ -36,6 +37,7 @@ func MultipleEval(scope *Scope, value1 value.Value, value2 value.Value) value.Va
 	return nil
 }
 
+// DivideEval generates IR for divide
 func DivideEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value {
 	if value1.Type() == types.I32 {
 		return scope.Block.NewSDiv(value1, value2)
@@ -45,6 +47,7 @@ func DivideEval(scope *Scope, value1 value.Value, value2 value.Value) value.Valu
 	return nil
 }
 
+// OppositeEval generates IR for opposite
 func OppositeEval(scope *Scope, value value.Value) value.Value {
 	if value.Type() == types.I32 {
 		return scope.Block.NewSub(constant.NewInt(types.I32, 0), value)
@@ -54,6 +57,7 @@ func OppositeEval(scope *Scope, value value.Value) value.Value {
 	return nil
 }
 
+// CmpEQEval generates IR for =
 func CmpEQEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value {
 	if value1.Type() == types.I32 {
 		return scope.Block.NewICmp(enum.IPredEQ, value1, value2)
@@ -63,6 +67,7 @@ func CmpEQEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value
 	return nil
 }
 
+// CmpNEEval generates IR for <>
 func CmpNEEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value {
 	if value1.Type() == types.I32 {
 		return scope.Block.NewICmp(enum.IPredNE, value1, value2)
@@ -72,6 +77,7 @@ func CmpNEEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value
 	return nil
 }
 
+// CmpLTEval generates IR for <
 func CmpLTEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value {
 	if value1.Type() == types.I32 {
 		return scope.Block.NewICmp(enum.IPredSLT, value1, value2)
@@ -81,6 +87,7 @@ func CmpLTEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value
 	return nil
 }
 
+// CmpLEEval generates IR for <=
 func CmpLEEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value {
 	if value1.Type() == types.I32 {
 		return scope.Block.NewICmp(enum.IPredSLE, value1, value2)
@@ -90,6 +97,7 @@ func CmpLEEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value
 	return nil
 }
 
+// CmpGTEval generates IR for >
 func CmpGTEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value {
 	if value1.Type() == types.I32 {
 		return scope.Block.NewICmp(enum.IPredSGT, value1, value2)
@@ -99,6 +107,7 @@ func CmpGTEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value
 	return nil
 }
 
+// CmpGEEval generates IR for >=
 func CmpGEEval(scope *Scope, value1 value.Value, value2 value.Value) value.Value {
 	if value1.Type() == types.I32 {
 		return scope.Block.NewICmp(enum.IPredSGE, value1, value2)

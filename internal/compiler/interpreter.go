@@ -37,18 +37,20 @@ func (ast *Ast) Compile(scope *Scope) {
 	}
 }
 
+// Compile compiles InstOutput
 func (ins *InstOutput) Compile(scope *Scope) {
 	value := ins.Content.Evaluate(scope)
-	tmp_ptr := scope.Block.NewBitCast(value, &types.PointerType{ElemType: &types.IntType{BitSize: 8}})
+	tmpPtr := scope.Block.NewBitCast(value, &types.PointerType{ElemType: &types.IntType{BitSize: 8}})
 	puts := scope.FindFunction("puts")
 	if puts == nil {
 		log.Fatal("puts not found")
 	}
-	scope.Block.NewCall(puts, tmp_ptr)
+	scope.Block.NewCall(puts, tmpPtr)
 }
 
+// Compile compiles InstDeclareVariable
 func (ins *InstDeclareVariable) Compile(scope *Scope) {
-	var variableName string = ins.Name
+	variableName := ins.Name
 	var variableInitial constant.Constant
 	switch {
 	case ins.Type.Int != nil:
@@ -69,39 +71,43 @@ func (ins *InstDeclareVariable) Compile(scope *Scope) {
 	}
 }
 
+// Compile compiles InstAssignment
 func (ins *InstAssignment) Compile(scope *Scope) {
 	key := ins.Left.Locate(scope)
 	expression := ins.Right.Evaluate(scope)
 	scope.Block.NewStore(expression, key)
 }
 
+// Compile compiles InstPrintfD
 func (ins *InstPrintfD) Compile(scope *Scope) {
 	value := ins.Content.Evaluate(scope)
 
-	format_def := scope.FindVariable("printfd_fmt")
-	if format_def == nil {
+	formatDef := scope.FindVariable("printfd_fmt")
+	if formatDef == nil {
 		log.Fatal("Cannot find printfd format")
 	}
-	format_ptr := scope.Block.NewBitCast(format_def, types.I8Ptr)
+	formatPtr := scope.Block.NewBitCast(formatDef, types.I8Ptr)
 
 	printf := scope.FindFunction("printf")
-	scope.Block.NewCall(printf, format_ptr, value)
+	scope.Block.NewCall(printf, formatPtr, value)
 }
 
+// Compile compiles InstPrintfF
 func (ins *InstPrintfF) Compile(scope *Scope) {
 	value := ins.Content.Evaluate(scope)
 
-	format_def := scope.FindVariable("printff_fmt")
-	if format_def == nil {
+	formatDef := scope.FindVariable("printff_fmt")
+	if formatDef == nil {
 		log.Fatal("Cannot find printff format")
 	}
-	format_ptr := scope.Block.NewBitCast(format_def, types.I8Ptr)
+	formatPtr := scope.Block.NewBitCast(formatDef, types.I8Ptr)
 
 	printf := scope.FindFunction("printf")
-	scope.Block.NewCall(printf, format_ptr, value)
+	scope.Block.NewCall(printf, formatPtr, value)
 
 }
 
+// Compile compiles InstConditionBr
 func (ins *InstConditionBr) Compile(scope *Scope) {
 	condVal := ins.Condition.Evaluate(scope)
 
