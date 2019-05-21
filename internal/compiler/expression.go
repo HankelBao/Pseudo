@@ -1,82 +1,104 @@
 package compiler
 
 import (
+	"log"
+
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 
 	//"github.com/alecthomas/repr"
-	"log"
+
 	"strconv"
 )
 
 // Evaluate evalues the expression and generates IR.
 func (e *Expression) Evaluate(scope *Scope) value.Value {
-	for index := range e.Tokens {
-		e.Tokens[index].EvaluateOperationType()
-	}
-	e.Prioritize()
-
-	expressionIR := NewExpressionIR(e.Tokens)
-	expressionIR.Build(scope)
-	return expressionIR.Evaluate(scope)
+	return e.Comparison.Evaluate(scope)
 }
 
-// Prioritize prioritizes the operations in its tokens and updated the priority in its own field.
-// All the operations has to be evaluated first!
-func (e *Expression) Prioritize() {
-	currentPriority := 0
-	for index, token := range e.Tokens {
-		if token.OperationType != NotOperationType {
-			// The priority of the current operation should affect how the operation is dealt with.
-			// So update currentPriority first.
-			currentPriority += OperationPriority[token.OperationType]
-			e.Tokens[index].Priority = currentPriority
-		}
+func (c *Comparison) Evaluate(scope *Scope) value.Value {
+	lhsValue := c.Head.Evaluate(scope)
+	for _, item := range c.Items {
+		lhsValue = item.Evaluate(scope, lhsValue)
 	}
+	return lhsValue
 }
 
-// EvaluateOperationType gets the type of each operation.
-func (token *ExpressionToken) EvaluateOperationType() {
-	token.OperationType = func() OperationType {
-		if token.OperationSymbol == nil {
-			return NotOperationType
-		}
-		switch (*token.OperationSymbol) {
-		case "+":
-			return Add
-		case "-":
-			return Minus
-		case "*":
-			return Times
-		case "/":
-			return Divide
-		case "=":
-			return CmpEQ
-		case "<>":
-			return CmpNE
-		case ">":
-			return CmpGT
-		case ">=":
-			return CmpGE
-		case "<":
-			return CmpLT
-		case "<=":
-			return CmpLE
-		case "(":
-			return LeftParenthesis
-		case ")":
-			return RightParenthesis
-		case "[":
-			return LeftBracket
-		case "]":
-			return RightBracket
-		case ",":
-			return ParamDivier
-		default:
-			return NotOperationType
-		}
-	}()
+func (o *OpComparison) Evaluate(scope *Scope, lhsValue value.Value) value.Value {
+	rhsValue := o.Item.Evaluate(scope)
+	switch o.Operator {
+	case "=":
+		return CmpEQEval(scope, lhsValue, rhsValue)
+	case "<>":
+		return CmpNEEval(scope, lhsValue, rhsValue)
+	case ">":
+		return CmpLTEval(scope, lhsValue, rhsValue)
+	case ">=":
+		return CmpLEEval(scope, lhsValue, rhsValue)
+	case "<":
+		return CmpLTEval(scope, lhsValue, rhsValue)
+	case "<=":
+		return CmpLEEval(scope, lhsValue, rhsValue)
+	}
+	log.Fatal("unreachable")
+	return nil
+}
+
+func (a *Addition) Evaluate(scope *Scope) value.Value {
+	lhsValue := a.Head.Evaluate(scope)
+	for _, item := range a.Items {
+		lhsValue = item.Evaluate(scope, lhsValue)
+	}
+	return lhsValue
+}
+
+func (o *OpAddition) Evaluate(scope *Scope, lhsValue value.Value) value.Value {
+	rhsValue := o.Item.Evaluate(scope)
+	switch o.Operator {
+	case "+":
+		return AddEval(scope, lhsValue, rhsValue)
+	case "-":
+		return MinusEval(scope, lhsValue, rhsValue)
+	}
+	log.Fatal("unreachable")
+	return nil
+}
+
+func (m *Multiplication) Evaluate(scope *Scope) value.Value {
+	lhsValue := m.Head.Evaluate(scope)
+	for _, item := range m.Items {
+		lhsValue = item.Evaluate(scope, lhsValue)
+	}
+	return lhsValue
+}
+
+func (o *OpMultiplication) Evaluate(scope *Scope, lhsValue value.Value) value.Value {
+	//rhsValue := o.Item.Evaluate(scope)
+	switch o.Operator {
+	// Not implemented yet
+	}
+	return nil
+}
+
+func (u *Unary) Evaluate(scope *Scope) value.Value {
+	// Not implemented yet
+	return u.Primary.Evaluate(scope)
+}
+
+func (p *Primary) Evaluate(scope *Scope) value.Value {
+	switch {
+	case p.Constant != nil:
+		return p.Constant.Evaluate(scope)
+	case p.Symbol != nil:
+		variablePtr := scope.FindVariable(*p.Symbol)
+		variable := scope.Block.NewLoad(variablePtr)
+		return variable
+	case p.Subexpression != nil:
+		return p.Subexpression.Evaluate(scope)
+	}
+	log.Fatal("unreacheable")
+	return nil
 }
 
 var stringConstantNameIndex = 0
@@ -97,7 +119,7 @@ func (c *Constant) Evaluate(scope *Scope) value.Value {
 	case c.VInt != nil:
 		return constant.NewInt(types.I32, *c.VInt)
 	default:
-		log.Fatal("Parser: cannot parse value at", c.Pos)
+		//log.Fatal("Parser: cannot parse value at", c.Pos)
 	}
 	return nil
 }

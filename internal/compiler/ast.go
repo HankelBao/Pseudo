@@ -99,8 +99,57 @@ type KeyToken struct {
 }
 
 type Expression struct {
-	Pos    lexer.Position
-	Tokens []ExpressionToken `@@+`
+	//Pos        lexer.Position
+	Comparison Comparison `@@`
+}
+
+type Comparison struct {
+	//Pos   lexer.Position
+	Head  Addition        `@@`
+	Items []*OpComparison `(@@)*`
+}
+
+type OpComparison struct {
+	//Pos lexer.Position
+	Operator string   `@("<" ">" | "=" | "<" "=" | ">" "=" | "<" | ">")`
+	Item     Addition `@@`
+}
+
+type Addition struct {
+	//Pos   lexer.Position
+	Head  Multiplication `@@`
+	Items []*OpAddition  `(@@)*`
+}
+
+type OpAddition struct {
+	Operator string         `@("+"|"-")`
+	Item     Multiplication `@@`
+}
+
+type Multiplication struct {
+	//Pos   lexer.Position
+	Head  Unary               `@@`
+	Items []*OpMultiplication `(@@)*`
+}
+
+type OpMultiplication struct {
+	Operator string `@("*"|"/")`
+	Item     Unary  `@@`
+}
+
+type Unary struct {
+	//Pos     lexer.Position
+	Not      *Unary   `  "!" @@`
+	Opposite *Unary   `| "-" @@`
+	Primary  *Primary `| @@`
+}
+
+type Primary struct {
+	//Pos lexer.Position
+
+	Constant      *Constant   ` @@`
+	Symbol        *string     `| @Ident`
+	Subexpression *Expression `| "(" @@ ")"`
 }
 
 // In order to simplify the tokens and improve the error report,
@@ -112,7 +161,7 @@ type ExpressionToken struct {
 	Pos lexer.Position
 
 	OperationType OperationType
-	Priority int
+	Priority      int
 
 	OperationSymbol *string   `@("+" | "-" | "*" | "/" | "<" ">" | "=" | "<" "=" | ">" "=" | "<" | ">" | "(" | ")" | "[" | "]" | ",")`
 	Constant        *Constant `| @@`
@@ -120,7 +169,7 @@ type ExpressionToken struct {
 }
 
 type Constant struct {
-	Pos     lexer.Position
+	//Pos     lexer.Position
 	VString *string  `  @String`
 	VReal   *float64 `| @Float`
 	VInt    *int64   `| @Int`

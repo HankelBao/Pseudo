@@ -7,6 +7,11 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
+// Interpreter is the interface for all the interpreters for asts.
+type Interpreter interface {
+	Compile(*Scope)
+}
+
 // Compile compiles the ast
 // It splits them into different instructions.
 func (ast *Ast) Compile(scope *Scope) {
