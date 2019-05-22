@@ -15,7 +15,7 @@ No releases yet...
 ## What has been achieved?
 
 - [x] Types
-    - [ ] Bool
+    - [x] Bool
     - [x] Int
     - [x] Real
     - [x] String

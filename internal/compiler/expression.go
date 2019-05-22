@@ -136,8 +136,15 @@ func (c *Constant) Evaluate(scope *Scope) value.Value {
 		return constant.NewFloat(types.Double, *c.VReal)
 	case c.VInt != nil:
 		return constant.NewInt(types.I32, *c.VInt)
+	case c.VBool != nil:
+		switch *c.VBool {
+		case "TRUE":
+			return constant.NewBool(true)
+		case "FALSE":
+			return constant.NewBool(false)
+		}
 	default:
-		//log.Fatal("Parser: cannot parse value at", c.Pos)
+		// log.Fatal("Parser: cannot parse value at", c.Pos)
 	}
 	return nil
 }

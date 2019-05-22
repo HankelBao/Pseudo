@@ -1,6 +1,6 @@
-DECLARE a : INT
-a <- 10/2
-IF 1+5-1/1=(1+1)*1-2+a
+DECLARE a : BOOL
+a <- FALSE
+IF a
   THEN
-    OUTPUT "hi"
+    OUTPUT "Hi"
 ENDIF

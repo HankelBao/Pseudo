@@ -8,6 +8,7 @@ import (
 	"runtime"
 
 	"github.com/HankelBao/Pseudo/internal/compiler"
+	"github.com/alecthomas/repr"
 )
 
 func main() {
@@ -21,7 +22,7 @@ func main() {
 	}
 
 	ast := compiler.Parse(in)
-	// repr.Println(ast)
+	repr.Println(ast)
 
 	m := compiler.Compile(ast)
 	// fmt.Println(m)

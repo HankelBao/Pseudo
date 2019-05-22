@@ -16,8 +16,8 @@ type Instruction struct {
 	PrintfD         *InstPrintfD         `|@@`
 	PrintfF         *InstPrintfF         `|@@`
 	DeclareVariable *InstDeclareVariable `|@@`
-	Assignment      *InstAssignment      `|@@`
 	ConditionBr     *InstConditionBr     `|@@`
+	Assignment      *InstAssignment      `|@@`
 	NullLine        *string              `|@EOL`
 }
 
@@ -78,14 +78,15 @@ type InstConditionBr struct {
 	Pos       lexer.Position
 	Condition Expression `"IF" @@ EOL`
 	TrueBr    Ast        `"THEN" EOL @@`
-	FalseBr   *Ast       `("ELSE" @@)?`
+	FalseBr   *Ast       `("ELSE" EOL @@)?`
 	END       string     `"ENDIF" EOL`
 }
 
 // VariableType matches the variable type of declaration
 type VariableType struct {
 	Pos    lexer.Position
-	Int    *string `  @"INT"`
+	BOOL   *string `  @"BOOL"`
+	Int    *string `| @"INT"`
 	REAL   *string `| @"REAL"`
 	CUSTOM *string `| @Ident`
 }
@@ -166,7 +167,7 @@ type Unary struct {
 type Primary struct {
 	//Pos lexer.Position
 
-	Constant      *Constant   ` @@`
+	Constant      *Constant   `  @@`
 	Symbol        *string     `| @Ident`
 	Subexpression *Expression `| "(" @@ ")"`
 }
@@ -174,7 +175,8 @@ type Primary struct {
 // Constant shows direct value
 type Constant struct {
 	//Pos     lexer.Position
-	VString *string  `  @String`
+	VBool   *string  `  @("TRUE"|"FALSE")`
+	VString *string  `| @String`
 	VReal   *float64 `| @Float`
 	VInt    *int64   `| @Int`
 }

@@ -2,14 +2,15 @@ package compiler
 
 import (
 	"io"
+	"log"
+
 	"github.com/alecthomas/participle"
 	"github.com/alecthomas/participle/lexer"
 	"github.com/alecthomas/participle/lexer/ebnf"
-	"log"
 )
 
 // Parse parses the input into ast.
-func Parse(f io.Reader) *Ast{
+func Parse(f io.Reader) *Ast {
 	pseLexer := lexer.Must(ebnf.New(`
 		Ident = (alpha | "_") { "_" | alpha | digit } .
 		String = "\"" { "\u0000"…"\uffff"-"\""-"\\" | "\\" any } "\"" .
@@ -37,4 +38,3 @@ func Parse(f io.Reader) *Ast{
 	}
 	return ast
 }
-

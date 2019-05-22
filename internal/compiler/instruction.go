@@ -59,6 +59,8 @@ func (ins *InstDeclareVariable) Compile(scope *Scope) {
 	case ins.Type.REAL != nil:
 		variableInitial = constant.NewFloat(types.Double, 0.0)
 		break
+	case ins.Type.BOOL != nil:
+		variableInitial = constant.NewBool(false)
 	}
 
 	// If the scope in the main scope,
