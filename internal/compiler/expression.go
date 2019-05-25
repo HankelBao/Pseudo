@@ -108,8 +108,8 @@ func (p *Primary) Evaluate(scope *Scope) value.Value {
 	switch {
 	case p.Constant != nil:
 		return p.Constant.Evaluate(scope)
-	case p.Symbol != nil:
-		variablePtr := scope.FindVariable(*p.Symbol)
+	case p.Key != nil:
+		variablePtr := p.Key.Locate(scope)
 		variable := scope.Block.NewLoad(variablePtr)
 		return variable
 	case p.Subexpression != nil:

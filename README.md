@@ -34,7 +34,7 @@ No releases yet...
     - [x] Output
     - [ ] Input
     - [x] If
-    - [ ] While
+    - [x] While
     - [ ] Repeat
     - [ ] For
     - [ ] Case

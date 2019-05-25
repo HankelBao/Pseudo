@@ -17,6 +17,8 @@ type Instruction struct {
 	PrintfF         *InstPrintfF         `|@@`
 	DeclareVariable *InstDeclareVariable `|@@`
 	ConditionBr     *InstConditionBr     `|@@`
+	While           *InstWhile           `|@@`
+	Repeat          *InstRepeat          `|@@`
 	Assignment      *InstAssignment      `|@@`
 	NullLine        *string              `|@EOL`
 }
@@ -82,6 +84,32 @@ type InstConditionBr struct {
 	END       string     `"ENDIF" EOL`
 }
 
+// InstWhile creates while block
+//
+// Example:
+//	WHILE 1=1 DO
+// 		OUTPUT "Hi"
+// 	ENDWHILE
+type InstWhile struct {
+	Pos       lexer.Position
+	Condition Expression `"WHILE" @@ "DO" EOL`
+	Body      Ast        `@@`
+	END       string     `"ENDWHILE" EOL`
+}
+
+// InstWhile creates repeat block
+//
+// Example:
+//	REPEAT
+// 		OUTPUT "HI"
+//	UNTIL 1=1
+type InstRepeat struct {
+	Pos       lexer.Position
+	Head      string     `"REPEAT" EOL`
+	Body      Ast        `@@`
+	Condition Expression `"UNTIL" @@ EOL`
+}
+
 // VariableType matches the variable type of declaration
 type VariableType struct {
 	Pos    lexer.Position
@@ -93,8 +121,14 @@ type VariableType struct {
 
 // Key is an assignable terminal
 type Key struct {
-	Pos    lexer.Position
-	Tokens []*KeyToken `@@+`
+	Pos       lexer.Position
+	Variables []*Variable `@@ ("." @@)*`
+}
+
+type Variable struct {
+	Pos        lexer.Position
+	Name       string `@Ident`
+	ArrayIndex *int   `("[" @Int "]")?`
 }
 
 // KeyToken is the lexers of Key
@@ -168,7 +202,7 @@ type Primary struct {
 	//Pos lexer.Position
 
 	Constant      *Constant   `  @@`
-	Symbol        *string     `| @Ident`
+	Key           *Key        `| @@`
 	Subexpression *Expression `| "(" @@ ")"`
 }
 

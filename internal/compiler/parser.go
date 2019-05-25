@@ -25,12 +25,16 @@ func Parse(f io.Reader) *Ast {
 		any = "\u0000"…"\uffff" .
 	`))
 
-	parser := participle.MustBuild(&Ast{},
+	parser, parserErr := participle.Build(&Ast{},
 		participle.Lexer(pseLexer),
 		participle.Unquote("String"),
-		participle.UseLookahead(1),
+		//participle.UseLookahead(0),
 		participle.Elide("Whitespace"),
 	)
+	if parserErr != nil {
+		log.Fatal(parserErr)
+	}
+
 	ast := &Ast{}
 	parseErr := parser.Parse(f, ast)
 	if parseErr != nil {

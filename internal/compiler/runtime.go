@@ -25,11 +25,11 @@ func (scope *Scope) InitRuntime() {
 	printf.Sig.Variadic = true
 	scope.RegisterFunction("printf", printf)
 
-	printfdFmt := constant.NewCharArrayFromString("Int: %d\000")
+	printfdFmt := constant.NewCharArrayFromString("Int: %d\n\000")
 	printfdFmtDef := mod.NewGlobalDef("printfd_fmt", printfdFmt)
 	scope.RegisterVariable("printfd_fmt", printfdFmtDef)
 
-	printffFmt := constant.NewCharArrayFromString("Int: %f\000")
+	printffFmt := constant.NewCharArrayFromString("Int: %f\n\000")
 	printffFmtDef := mod.NewGlobalDef("printff_fmt", printffFmt)
 	scope.RegisterVariable("printff_fmt", printffFmtDef)
 }

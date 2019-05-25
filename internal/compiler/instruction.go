@@ -7,7 +7,7 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-// Interpreter is the interface for all the interpreters for asts.
+// Interpreter is the interface for all the interpreters for instructions.
 type Interpreter interface {
 	Compile(*Scope)
 }
@@ -29,6 +29,10 @@ func (ast *Ast) Compile(scope *Scope) {
 			inst.PrintfF.Compile(scope)
 		case inst.ConditionBr != nil:
 			inst.ConditionBr.Compile(scope)
+		case inst.While != nil:
+			inst.While.Compile(scope)
+		case inst.Repeat != nil:
+			inst.Repeat.Compile(scope)
 		case inst.NullLine != nil:
 			continue
 		default:
@@ -128,5 +132,37 @@ func (ins *InstConditionBr) Compile(scope *Scope) {
 	falseBlock.NewBr(continueBlock)
 
 	scope.Block.NewCondBr(condVal, trueBlock, falseBlock)
+	scope.Block = continueBlock
+}
+
+// Compile compiles while
+func (ins *InstWhile) Compile(scope *Scope) {
+	condBlock := scope.Func.NewBlock("")
+	condBlockScope := scope.NewScope(condBlock)
+	bodyBlock := scope.Func.NewBlock("")
+	bodyBlockScope := scope.NewScope(bodyBlock)
+	continueBlock := scope.Func.NewBlock("")
+
+	scope.Block.NewBr(condBlock)
+	condVal := ins.Condition.Evaluate(condBlockScope)
+	condBlock.NewCondBr(condVal, bodyBlock, continueBlock)
+	ins.Body.Compile(bodyBlockScope)
+	bodyBlock.NewBr(condBlock)
+
+	scope.Block = continueBlock
+}
+
+// Compile compiles repeat
+func (ins *InstRepeat) Compile(scope *Scope) {
+	bodyBlock := scope.Func.NewBlock("")
+	bodyBlockScope := scope.NewScope(bodyBlock)
+	continueBlock := scope.Func.NewBlock("")
+
+	scope.Block.NewBr(bodyBlock)
+	ins.Body.Compile(bodyBlockScope)
+	condVal := ins.Condition.Evaluate(bodyBlockScope)
+	// Exit repeat block when the condition is true
+	bodyBlock.NewCondBr(condVal, continueBlock, bodyBlock)
+
 	scope.Block = continueBlock
 }
