@@ -35,7 +35,7 @@ No releases yet...
     - [ ] Input
     - [x] If
     - [x] While
-    - [ ] Repeat
+    - [x] Repeat
     - [ ] For
     - [ ] Case
     - [ ] Precedure
