@@ -13,6 +13,8 @@ type Ast struct {
 type Instruction struct {
 	Pos             lexer.Position
 	Output          *InstOutput          ` @@`
+	Input           *InstInput           `|@@`
+	Call            *InstCall            `|@@`
 	PrintfD         *InstPrintfD         `|@@`
 	PrintfF         *InstPrintfF         `|@@`
 	DeclareVariable *InstDeclareVariable `|@@`
@@ -29,6 +31,11 @@ type Instruction struct {
 type InstOutput struct {
 	Pos     lexer.Position
 	Content Expression `"OUTPUT" @@ EOL`
+}
+
+type InstInput struct {
+	Pos     lexer.Position
+	Content Key `"INPUT" @@ EOL`
 }
 
 // InstDeclareVariable declares a variable.
@@ -108,6 +115,15 @@ type InstRepeat struct {
 	Head      string     `"REPEAT" EOL`
 	Body      Ast        `@@`
 	Condition Expression `"UNTIL" @@ EOL`
+}
+
+// InstCall creates call block
+//
+// Example:
+// 	CALL puts("Hello World!")
+type InstCall struct {
+	Pos      lexer.Position
+	Function *FunctionCall `"CALL" @@ EOL`
 }
 
 // VariableType matches the variable type of declaration
@@ -201,9 +217,10 @@ type Unary struct {
 type Primary struct {
 	//Pos lexer.Position
 
-	Constant      *Constant   `  @@`
-	Key           *Key        `| @@`
-	Subexpression *Expression `| "(" @@ ")"`
+	Constant      *Constant     `  @@`
+	Function      *FunctionCall `| @@`
+	Key           *Key          `| @@`
+	Subexpression *Expression   `| "(" @@ ")"`
 }
 
 // Constant shows direct value
@@ -213,4 +230,9 @@ type Constant struct {
 	VString *string  `| @String`
 	VReal   *float64 `| @Float`
 	VInt    *int64   `| @Int`
+}
+
+type FunctionCall struct {
+	Name   string        `@Ident`
+	Params []*Expression `"(" (@@ ("," @@)*)? ")"`
 }

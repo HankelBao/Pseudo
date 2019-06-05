@@ -1,6 +1,3 @@
 DECLARE a : INT
-a <- 1
-REPEAT
-  a <- a+1
-  PrintfD a
-UNTIL a=4
+a <- getchar()
+CALL putchar(a)

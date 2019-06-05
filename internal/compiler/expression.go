@@ -112,6 +112,9 @@ func (p *Primary) Evaluate(scope *Scope) value.Value {
 		variablePtr := p.Key.Locate(scope)
 		variable := scope.Block.NewLoad(variablePtr)
 		return variable
+	case p.Function != nil:
+		functionVal := p.Function.Compile(scope)
+		return functionVal
 	case p.Subexpression != nil:
 		return p.Subexpression.Evaluate(scope)
 	}
@@ -131,7 +134,8 @@ func (c *Constant) Evaluate(scope *Scope) value.Value {
 		stringGName := "PseudoConstant?$" + strconv.Itoa(stringConstantNameIndex)
 		stringConstantNameIndex++
 		globalDef := scope.Module.NewGlobalDef(stringGName, stringConstant)
-		return globalDef
+		ptr := scope.Block.NewBitCast(globalDef, types.I8Ptr)
+		return ptr
 	case c.VReal != nil:
 		return constant.NewFloat(types.Double, *c.VReal)
 	case c.VInt != nil:

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -39,7 +38,7 @@ func main() {
 		targetName = "./tmp/test"
 	}
 
-	clangCmdOutput, clangCmdErr := exec.Command("clang", "./tmp/test.ll", "-o", targetName).Output()
+	clangCmdOutput, clangCmdErr := exec.Command("clang", "./tmp/test.ll", "./runtime.c", "-o", targetName).Output()
 	if clangCmdErr != nil {
 		log.Fatal(clangCmdErr)
 	}
@@ -47,9 +46,9 @@ func main() {
 		log.Println(string(clangCmdOutput))
 	}
 
-	execCmdOutput, execCmdErr := exec.Command(targetName).Output()
+	/*execCmdOutput, execCmdErr := exec.Command(targetName).Output()
 	if execCmdErr != nil {
 		log.Fatal(execCmdErr)
 	}
-	fmt.Println(string(execCmdOutput))
+	fmt.Println(string(execCmdOutput))*/
 }

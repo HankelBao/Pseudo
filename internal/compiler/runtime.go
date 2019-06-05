@@ -25,6 +25,16 @@ func (scope *Scope) InitRuntime() {
 	printf.Sig.Variadic = true
 	scope.RegisterFunction("printf", printf)
 
+	scanf := mod.NewFunc("scanf", types.I32, ir.NewParam("", types.I8Ptr))
+	scanf.Sig.Variadic = true
+	scope.RegisterFunction("scanf", scanf)
+
+	getchar := mod.NewFunc("getchar", types.I32)
+	scope.RegisterFunction("getchar", getchar)
+
+	putchar := mod.NewFunc("putchar", types.I32, ir.NewParam("", types.I32))
+	scope.RegisterFunction("putchar", putchar)
+
 	printfdFmt := constant.NewCharArrayFromString("Int: %d\n\000")
 	printfdFmtDef := mod.NewGlobalDef("printfd_fmt", printfdFmt)
 	scope.RegisterVariable("printfd_fmt", printfdFmtDef)

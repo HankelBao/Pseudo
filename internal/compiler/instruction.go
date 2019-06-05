@@ -5,6 +5,7 @@ import (
 
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
 )
 
 // Interpreter is the interface for all the interpreters for instructions.
@@ -19,6 +20,10 @@ func (ast *Ast) Compile(scope *Scope) {
 		switch {
 		case inst.Output != nil:
 			inst.Output.Compile(scope)
+		case inst.Input != nil:
+			inst.Input.Compile(scope)
+		case inst.Call != nil:
+			inst.Call.Compile(scope)
 		case inst.DeclareVariable != nil:
 			inst.DeclareVariable.Compile(scope)
 		case inst.Assignment != nil:
@@ -50,6 +55,18 @@ func (ins *InstOutput) Compile(scope *Scope) {
 		log.Fatal("puts not found")
 	}
 	scope.Block.NewCall(puts, tmpPtr)
+}
+
+func (ins *InstCall) Compile(scope *Scope) {
+	ins.Function.Compile(scope)
+}
+
+// Compile compiles InstInput
+func (ins *InstInput) Compile(scope *Scope) {
+	// keyVar := ins.Content.Locate(scope)
+
+	getchar := scope.FindFunction("getchar")
+	scope.Block.NewCall(getchar)
 }
 
 // Compile compiles InstDeclareVariable
@@ -165,4 +182,16 @@ func (ins *InstRepeat) Compile(scope *Scope) {
 	bodyBlock.NewCondBr(condVal, continueBlock, bodyBlock)
 
 	scope.Block = continueBlock
+}
+
+func (f *FunctionCall) Compile(scope *Scope) value.Value {
+	fName := f.Name
+	fParams := make([]value.Value, len(f.Params))
+	for index, item := range f.Params {
+		fParams[index] = item.Evaluate(scope)
+	}
+
+	function := scope.FindFunction(fName)
+	returnVal := scope.Block.NewCall(function, fParams...)
+	return returnVal
 }

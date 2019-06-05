@@ -18,7 +18,8 @@ No releases yet...
     - [x] Bool
     - [x] Int
     - [x] Real
-    - [x] String
+    - [ ] String
+    - [ ] Char
     - [ ] Array
     - [ ] Type (struct)
 - [ ] Expression
@@ -27,7 +28,7 @@ No releases yet...
     - [x] (Subexpression)
     - [ ] Array Index
     - [x] Cmp (=/<>/<=/>=/</>)
-    - [ ] Functions
+    - [x] Functions
 - [ ] Instructions
     - [x] Declare
     - [x] Assign
@@ -38,10 +39,13 @@ No releases yet...
     - [x] Repeat
     - [ ] For
     - [ ] Case
-    - [ ] Precedure
+    - [ ] Procedure
     - [ ] Function
-    - [ ] Call
+    - [x] Call
     - [ ] Type
+- [ ] Runtime
+    - [ ] GC
+    - [ ] String
 
 ## Dependencies
 

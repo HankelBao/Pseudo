@@ -6,22 +6,17 @@ declare i32 @puts(i8*)
 
 declare i32 @printf(i8*, ...)
 
+declare i32 @scanf(i8*, ...)
+
+declare i32 @getchar()
+
+declare i32 @putchar(i32)
+
 define i32 @main() {
 ; <label>:0
-	store i32 1, i32* @a
-	br label %1
-
-; <label>:1
+	%1 = call i32 @getchar()
+	store i32 %1, i32* @a
 	%2 = load i32, i32* @a
-	%3 = add i32 %2, 1
-	store i32 %3, i32* @a
-	%4 = load i32, i32* @a
-	%5 = bitcast [9 x i8]* @printfd_fmt to i8*
-	%6 = call i32 (i8*, ...) @printf(i8* %5, i32 %4)
-	%7 = load i32, i32* @a
-	%8 = icmp eq i32 %7, 4
-	br i1 %8, label %9, label %1
-
-; <label>:9
+	%3 = call i32 @putchar(i32 %2)
 	ret i32 0
 }
